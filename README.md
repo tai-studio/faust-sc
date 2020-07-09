@@ -9,7 +9,8 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `sinosc` — `SinOsc`
 + `lfpulse` — `LFPulse`
 + `lftri` — `LFTri`
-+ `mod` — `%`
++ `mod` — `%` (modulo)
+    + <math xmlns="http://www.w3.org/1998/Math/MathML"> <mstyle displaystyle="true"> <mi> mod </mi> <mo> : </mo> <msup> <mrow> <mtext> &#x211D;<!--double-struck capital R--> </mtext> </mrow> <mrow> <mn> 2 </mn> </mrow> </msup> <mo> &#x2192;<!--rightwards arrow--> </mo> <msup> <mrow> <mtext> &#x211D;<!--double-struck capital R--> </mtext> </mrow> <mrow> <mo> + </mo> </mrow> </msup> </mstyle> </math>
 + `size` — `Array:size`
 + `wrapAt` — `Array:wrapAt`
 + `at` — `Array:at`
