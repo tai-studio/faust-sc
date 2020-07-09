@@ -1,0 +1,290 @@
+declare name "scUGens";
+declare author "LFSaw";
+declare copyright "MIT";
+
+import("stdfaust.lib");
+
+
+//---------------------------------`(sc.)impulse`---------------------------------------
+// Periodic 1-sample impulse at given frequency. 
+//
+// #### Usage
+//
+// ```
+// impulse(freq) : _;
+// ```
+//-----------------------------------------------------------------------------
+impulse(freq) = os.lf_imptrain(freq);
+
+//---------------------------------`(sc.)lfsaw`---------------------------------------
+// aliasing (rising) sawtooth wave in the range [-1, 1]
+//
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+// 
+// #### Usage
+//
+// ```
+// lfsaw(freq, phase) : _;
+// ```
+// with
+//
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+// 
+// a phase of `-0.5` starts oscillator at minimal value
+//-----------------------------------------------------------------------------
+lfsaw(freq, phase) = os.lf_sawpos_phase(phase+0.5, freq) * 2 - 1;
+
+//---------------------------------`(sc.)sinosc`---------------------------------------
+// sinewave oscillator
+// 
+// #### Usage
+//
+// ```
+// sinosc(freq, phase)
+// ```
+// with 
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..2pi
+//-----------------------------------------------------------------------------
+sinosc(freq, phase) = os.oscp(freq, phase);
+
+//---------------------------------`(sc.)lfpulse`---------------------------------------
+// aliasing pulsewave in the range [0..1]
+// #### Usage
+//
+// ```
+// lfpulse(freq, width, phase)
+// ```
+// with
+// * `freq`: frequency in Hz
+// * `width`: pulse width duty in the range of 0..1
+// * `phase`: phase in the range of 0..1
+//-----------------------------------------------------------------------------
+lfpulse(freq, width, phase) = float(os.lf_sawpos_phase(phase, freq) <= width);
+
+
+
+//---------------------------------`(sc.)lftri`---------------------------------------
+// aliasing triangle oscillator in the range [-1, 1]
+// #### Usage
+//
+// ```
+// lftri(freq, phase)
+// ```
+// with
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+//
+// a phase of `-0.5` starts oscillator at minimal value
+//-----------------------------------------------------------------------------
+lftri(freq, phase) = lfsaw(freq, phase) * 2: fold(-1, 1);
+
+
+
+//---------------------------------`(sc.)mod`---------------------------------------
+// save modulo (SC style, i.e. \IR^2 \to \IR^+)
+//
+// #### Usage
+//
+// ```
+// mod(a, b)
+// ```
+//-----------------------------------------------------------------------------
+mod(a, 0) = 0;
+mod(a, b) = ba.if(a > 0, a % b, a % b + b);
+
+
+//---------------------------------`(sc.)size`---------------------------------------
+// size of a list
+//
+// #### Usage
+//
+// ```
+// size((a, b, ...)) : N
+// ```
+// with N being a constant at runtime
+// 
+//-----------------------------------------------------------------------------
+size(LIST) = ba.count(LIST);
+
+
+//---------------------------------`(sc.)wrapAt`---------------------------------------
+// sc-style `wrapAt` for lists (starting at 0, wrapping around)
+//
+// #### Usage
+//
+// ```
+// wrapAt(IDX, (a, b, ...)) : _
+// ```
+// 
+// 
+//-----------------------------------------------------------------------------
+wrapAt(IDX, LIST) = ba.take(mod((IDX+1), size(LIST)), LIST);
+
+//---------------------------------`(sc.)at`---------------------------------------
+// sc-style `at` for lists (starting at 0, no wrapping)
+//
+// #### Usage
+//
+// ```
+// at(IDX, (a, b, ...)) : _
+// ```
+// 
+// 
+//-----------------------------------------------------------------------------
+at(IDX, LIST) = ba.take(IDX+1, LIST);
+
+//---------------------------------`(sc.)wrap2`---------------------------------------
+// wrap signal between -hi, hi
+//
+// #### Usage
+//
+// ```
+// _ : wrap2(hi) : _
+// ```
+//-----------------------------------------------------------------------------
+wrap2(hi) = _ % hi;
+
+
+
+//---------------------------------`(sc.)wrap`---------------------------------------
+// wrap signal between lo and hi
+//
+// #### Usage
+//
+// ```
+// _ : wrap(lo, hi) : _
+// ```
+//-----------------------------------------------------------------------------
+wrap(0, hi) = _ - hi2 : wrap2(hi2) + (hi2) with {
+    hi2 = hi/2;
+};
+wrap(lo, lo) = lo;
+wrap(lo, hi) = _ - lo : wrap(0, hi - lo) + lo;
+
+
+
+//---------------------------------`(sc.)clip2`---------------------------------------
+// clip signal between -hi and hi
+//
+// #### Usage
+//
+// ```
+// _ : clip2(hi) : _
+// ```
+//-----------------------------------------------------------------------------
+clip2(hi) = _ : clip(-abs_h, abs_h) with {
+    abs_h = abs(hi);
+};
+
+
+//---------------------------------`(sc.)clip`---------------------------------------
+// clip signal between lo and hi
+//
+// #### Usage
+//
+// ```
+// _ : clip(lo, hi) : _
+// ```
+//-----------------------------------------------------------------------------
+clip(lo, hi) = _ : clip_l(lo) : clip_h(hi) with {
+    clip_l(lo) = _ <: ba.if(_ < lo, lo, _);
+    clip_h(hi) = _ <: ba.if(_ > hi, hi, _);
+};
+
+
+//---------------------------------`(sc.)fold`---------------------------------------
+// fold signal between lo and hi
+//
+// #### Usage
+//
+// ```
+// _ : fold(lo, hi) : _
+// ```
+//-----------------------------------------------------------------------------
+fold(lo, hi, x) = fold_0(hi-lo, x - lo) + lo with {
+    // fold between 0..range 
+    fold_0(range, x) = onefold_0(range, mod(x, 2*range));
+
+    // fold assuming input is in the range 0..range2
+    onefold_0(range, x) = ba.if(x > range, range-(x-range), x);
+};
+
+//---------------------------------`(sc.)fold2`---------------------------------------
+// fold signal between -hi and hi
+//
+// #### Usage
+//
+// ```
+// _ : fold2(hi) : _
+// ```
+// 
+// #### Example
+//
+// ```
+// process = sinosc(ma.SR / 256, 0) * factor <: _/factor, fold2(0.2, _) with {
+//     factor = 10;
+// };
+// ```
+//-----------------------------------------------------------------------------
+fold2(hi) = _ : fold(-hi, hi);
+
+
+
+//---------------------------------`(sc.)phasor`---------------------------------------
+// A resettable linear ramp between two levels.
+//
+// #### Usage
+//
+// ```
+// phasor(trig, rate, start, end, resetpos) : _;
+// ```
+// TODO: implement phasor resetpos
+//-----------------------------------------------------------------------------
+// phasor(trig, rate, start, end, resetpos) = hsp_phasor(range, freq, trig1(trig)) + start 
+// with {
+// 	range = end-start;
+// 	freq = rate*float(ma.SR);
+// };
+
+
+
+//---------------------------------`(sc.)sinoscfb`---------------------------------------
+// SinOscFB is a sine oscillator that has phase modulation feedback; 
+// its output plugs back into the phase input. Basically this allows 
+// a modulation between a sine wave and a sawtooth like wave. 
+// Overmodulation causes chaotic oscillation. 
+//
+// #### Usage
+//
+// ```
+// sinoscfb(freq, feedback) : _;
+// ```
+// with
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+// * `feedback`: amplitude of phase feedback in radians.
+//-----------------------------------------------------------------------------
+sinoscfb(freq, feedback) = sinoscfb_p(freq, 0, feedback);
+
+sinoscfb_p(freq, phase, feedback) = sfb(freq, phase, feedback) ~ _ with {
+    sfb(freq, phase, feedback, x) = sinosc(freq, phase + feedback * x);
+} ;
+
+//---------------------------------`(sc.)pmosc`---------------------------------------
+// Phase modulation sinwave oscillator pair.
+//
+// #### Usage
+//
+// ```
+// pmosc(carFreq, modFreq, modAmp) : _;
+// ```
+// with
+// 
+// * `freq`: frequency in Hz
+// * `width`: pulse width duty in the range of 0..1
+// * `phase`: phase in the range of 0..1
+//-----------------------------------------------------------------------------
+pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, modphase) * pmindex);
