@@ -231,6 +231,32 @@ fold(lo, hi, x) = fold_0(hi-lo, x - lo) + lo with {
 //-----------------------------------------------------------------------------
 fold2(hi) = _ : fold(-hi, hi);
 
+//---------------------------------`(sc.)trig1_1`---------------------------------------
+// When a nonpositive to positive transition occurs at the input, 
+// `trig1` outputs the level of the triggering input for one sample.
+// If not triggered, it outputs zero.
+//
+// #### Usage
+//
+// ```
+// _ : trig1_1 : _;
+// ```
+//-----------------------------------------------------------------------------
+trig1_1 = strictRising(_ > 0);
+
+
+//---------------------------------`(sc.)trig_1`---------------------------------------
+// When a nonpositive to positive transition occurs at the input, 
+// `trig` outputs the level of the triggering input for one sample.
+// If not triggered, it outputs zero.
+//
+// #### Usage
+//
+// ```
+// _ : trig_1 : _;
+// ```
+//-----------------------------------------------------------------------------
+trig_1(x) = strictRising(x > 0) * x;
 
 
 //---------------------------------`(sc.)phasor`---------------------------------------

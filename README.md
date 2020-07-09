@@ -4,6 +4,9 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 
 ## Implemented
 
+### scUgens.lib
+
+
 + `impulse` — `Impulse`
 + `lfsaw` — `LFsaw`
 + `sinosc` — `SinOsc`
@@ -22,6 +25,22 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `fold2` — `UGen:fold2`
 + `sinoscfb` — `SinOscFB`
 + `pmosc` — `PMOsc`
++ `trig_1` — `Trig` with 1-sample duration 
++ `trig1_1` — `Trig1` with 1-sample duration
+
+
+### taiStudio.lib
+
++ `strictRising` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `strictFalling` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `changed` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `falling` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `rising` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `unchanged` — shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
++ `phasor`
++ `sineosc_s` — hardsynced sin oscillator
++ `funcosc` — function oscillator
++ `func2waveform` — turn a function (with one variable) into a waveform
 
 ## Acknowledgements
 

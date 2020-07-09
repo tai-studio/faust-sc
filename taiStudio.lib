@@ -1,0 +1,132 @@
+declare name "taiStudio";
+declare author "LFSaw";
+declare copyright "MIT";
+
+import("stdfaust.lib");
+sc = library("scUGens.lib");
+
+//---------------------------------`(lf.)strictRising`---------------------------------------
+// 1 for strictly rising, 0 otherwise
+//
+// #### Usage
+//
+// ```
+// _ : strictRising : _
+// ```
+//-----------------------------------------------------------------------------
+strictRising(x) = x > x';
+
+//---------------------------------`(lf.)strictFalling`---------------------------------------
+// 1 for strictly falling, 0 otherwise
+//
+// #### Usage
+//
+// ```
+// _ : strictFalling : _
+// ```
+//-----------------------------------------------------------------------------
+strictFalling(x) =  x < x';
+
+//---------------------------------`(lf.)changed`---------------------------------------
+// 1 if signal changes, 0 otherwise
+//
+// #### Usage
+//
+// ```
+// _ : changed : _;
+// ```
+//-----------------------------------------------------------------------------
+changed(x) = x != x';
+
+//---------------------------------`(lf.)falling`---------------------------------------
+// 1 for falling or unchanged, 0 otherwise
+//
+// #### Usage
+//
+// ```
+// _ : falling : _;
+// ```
+//-----------------------------------------------------------------------------
+falling(x) = x <= x';
+
+//---------------------------------`(lf.)rising`---------------------------------------
+// 1 for rising or unchanged, 0 otherwise
+//
+// #### Usage
+//
+// ```
+// _ : rising : _;
+// ```
+//-----------------------------------------------------------------------------
+rising(x) = x >= x';
+
+//---------------------------------`(lf.)unchanged`---------------------------------------
+// 1 for unchanged, 0 otherwise 
+//
+// #### Usage
+//
+// ```
+// _ : unchanged : _;
+// ```
+//-----------------------------------------------------------------------------
+unchanged(x) = x == x';
+
+
+//---------------------------------`(lf.)phasor`---------------------------------------
+// resettable phasor
+// 
+// #### Usage
+//
+// ```
+// phasor(freq, phase, reset, length) : _;
+// ```
+//-----------------------------------------------------------------------------
+phasor(freq, phase, reset, length) = int(os.hs_phasor(length, freq, sc.trig1_1(reset)) + (phase * length) % length;
+
+
+//---------------------------------`(lf.)sineosc_s`---------------------------------------
+// hardsynced sine wave with phase offset
+// 
+// #### Usage
+//
+// ```
+// sineosc_s(freq, phase, sync) : _;
+// ```
+//-----------------------------------------------------------------------------
+sineosc_s(freq, phase, sync) =  phasor(freq, phase, sync, waveLength) : rdtable(waveLength, wave)
+with {
+    waveLength = pl.tablesize;
+    wave = os.sinwaveform(waveLength);
+};
+
+//---------------------------------`(lf.)funcosc`---------------------------------------
+// table-based function oscillator
+// 
+// #### Usage
+//
+// ```
+// funcosc(func, freq, phase, reset)
+// ```
+// with
+// `freq` — oscillation frequency
+// `reset` — trigger resetting to beginning of table
+// `function` — function with one variable element; evaluated and stored in a wavetable in the range of [0..1]
+//-----------------------------------------------------------------------------
+funcosc(func, freq, phase, reset) =  phasor(freq, phase, reset, size) : rdtable(func2waveform(func, size)) with {
+    size = pl.tablesize;
+};
+
+
+//---------------------------------`(lf.)funcosc`---------------------------------------
+// returns tuple of size and values as expected from rdtable
+// #### Usage
+//
+// ```
+// func2waveform(function, size) : _,_
+// ```
+// with
+// `function` — function with one variable element; evaluated in the rangfe of [0..1]
+// `size` — sample accuracy
+//-----------------------------------------------------------------------------
+func2waveform(function, size) = float(ba.time)/float(size) : function : size, _;
+
