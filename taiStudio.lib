@@ -81,7 +81,7 @@ unchanged(x) = x == x';
 // phasor(freq, phase, reset, length) : _;
 // ```
 //-----------------------------------------------------------------------------
-phasor(freq, phase, reset, length) = int(os.hs_phasor(length, freq, sc.trig1_1(reset)) + (phase * length) % length;
+phasor(freq, phase, reset, length) = int(os.hs_phasor(length, freq, sc.trig1_1(reset)) + (phase * length)) % length;
 
 
 //---------------------------------`(lf.)sineosc_s`---------------------------------------
