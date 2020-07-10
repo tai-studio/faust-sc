@@ -70,6 +70,6 @@ shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/is
 
 ## Acknowledgements and Support
 
-Support me by listening to my music on [bandcamp](http://lfsaw.bandcamp.com)
+*Though, most of the research that went into this repository is done in my spare time, it has also been partially funded by the [RottingSounds](http://rottingsounds.org) (project AR 445-G24, awarded by the Austrian Science Fund (FWF)).*
 
-This implementation has been partially funded by [RottingSounds](http://rottingsounds.org) (project AR 445-G24) by the Austrian Science Fund (FWF).
+Please support me by listening to (and possibly purchasing) my music on [bandcamp](http://lfsaw.bandcamp.com).
