@@ -1,4 +1,6 @@
 # faust-sc
+*2020, LFSaw ([interaction](http://tai-studio.org) | [music](http://lfsaw.de))*
+
 
 DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp language inspired by the interface of standard SuperCollider UGens.
 
@@ -27,7 +29,8 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `pmosc` — `PMOsc`
 + `trig_1` — `Trig` with 1-sample duration 
 + `trig1_1` — `Trig1` with 1-sample duration
-
++ `latch` — `Latch`
++ `gate` — `Gate`
 
 ### taiStudio.lib
 
@@ -42,6 +45,8 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `funcosc` — function oscillator
 + `func2waveform` — turn a function (with one variable) into a waveform
 
-## Acknowledgements
+## Acknowledgements and Support
+
+Support me by listening to my music on [bandcamp](http://lfsaw.bandcamp.com)
 
 This implementation has been partially funded by [RottingSounds](http://rottingsounds.org) (project AR 445-G24) by the Austrian Science Fund (FWF).

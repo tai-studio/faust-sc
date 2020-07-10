@@ -315,3 +315,33 @@ sinoscfb_p(freq, phase, feedback) = sfb(freq, phase, feedback) ~ _ with {
 // * `phase`: phase in the range of 0..1
 //-----------------------------------------------------------------------------
 pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, modphase) * pmindex);
+
+//---------------------------------`(sc.)latch`---------------------------------------
+// Holds input signal value when triggered (`trig` moves from negative to positive). 
+// Outputs 0 until it receives its first trigger.
+//
+// #### Usage
+//
+// ```
+// _ : latch(trig) : _;
+// ```
+// with
+// 
+// * `trig`: trigger signal
+//-----------------------------------------------------------------------------
+latch(trig) = _ : select2(trig1_1(trig), _, _) ~ _;
+
+//---------------------------------`(sc.)gate`---------------------------------------
+// Allows input signal value to pass when `trig` is positive, otherwise holds last value.
+//
+// #### Usage
+//
+// ```
+// _ : gate(trig) : _;
+// ```
+// with
+// 
+// * `trig`: gating signal
+//-----------------------------------------------------------------------------
+gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
+
