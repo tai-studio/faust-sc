@@ -8,14 +8,46 @@ lf = library("taiStudio.lib");
 
 //---------------------------------`(sc.)impulse`---------------------------------------
 // Periodic 1-sample impulse at given frequency. 
+// Setting `freq == 0` and `phase == 0` 
+// (i.e. infinite duration between first and subsequent impulses) 
+// results in a dirac-impulse.  
 //
 // #### Usage
 //
 // ```
-// impulse(freq) : _;
+// impulse(freq, phase) : _;
 // ```
+// with
+//
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+// note that initial impulse for `phase % 1 == 0` only happens for `phase == 1` 
 //-----------------------------------------------------------------------------
-impulse(freq) = os.lf_imptrain(freq);
+// impulse(freq) = os.lf_imptrain(freq);
+impulse(freq, 0) = 1-1', (phasor(freq, phase) : lf.strictFalling) :> _ ; 
+impulse(freq, phase) = phasor(freq, phase) : lf.strictFalling;
+
+
+//---------------------------------`(sc.)lfsaw_uni`---------------------------------------
+// Unipolar lfsaw in the range [0..1]
+//
+// #### Usage
+//
+// ```
+// lfsaw_uni(freq, phase) : _;
+// ```
+// with
+// 
+// * `freq`: frequency
+// * `phase`: phase
+//-----------------------------------------------------------------------------
+lfsaw_uni(freq, phase) = inc(freq) + phaseChange(phase : ma.frac) : + ~ ma.frac with {
+	// `_ : ma.frac` <=> `_ : _ % 1.0`
+    // only apply change of phase to incremental part
+    phaseChange(phase) = phase - phase';
+    inc(freq) = freq/float(ma.SR);
+};
+
 
 //---------------------------------`(sc.)lfsaw`---------------------------------------
 // aliasing (rising) sawtooth wave in the range [-1, 1]
@@ -35,7 +67,9 @@ impulse(freq) = os.lf_imptrain(freq);
 // 
 // a phase of `-0.5` starts oscillator at minimal value
 //-----------------------------------------------------------------------------
-lfsaw(freq, phase) = os.lf_sawpos_phase(phase+0.5, freq) * 2 - 1;
+lfsaw(freq, phase) = lfsaw_uni(freq, phase) * 2 - 1;
+
+
 
 //---------------------------------`(sc.)sinosc`---------------------------------------
 // sinewave oscillator
@@ -146,8 +180,7 @@ at(IDX, LIST) = ba.take(IDX+1, LIST);
 // _ : wrap2(hi) : _
 // ```
 //-----------------------------------------------------------------------------
-wrap2(hi) = _ % hi;
-
+wrap2(hi) = _ % hi; // note the use of faust-specific modulo (resulting in values between [-hi, hi]) here
 
 
 //---------------------------------`(sc.)wrap`---------------------------------------
@@ -162,7 +195,7 @@ wrap2(hi) = _ % hi;
 wrap(0, hi) = _ - hi2 : wrap2(hi2) + (hi2) with {
     hi2 = hi/2;
 };
-wrap(lo, lo) = lo;
+wrap(lo, lo) = lo; // same value for lo and hi results in constant value
 wrap(lo, hi) = _ - lo : wrap(0, hi - lo) + lo;
 
 
@@ -260,24 +293,6 @@ trig1_1(x) = lf.strictRising(x > 0);
 trig_1(x) = lf.strictRising(x > 0) * x;
 
 
-//---------------------------------`(sc.)phasor`---------------------------------------
-// A resettable linear ramp between two levels.
-//
-// #### Usage
-//
-// ```
-// phasor(trig, rate, start, end, resetpos) : _;
-// ```
-// TODO: implement phasor resetpos
-//-----------------------------------------------------------------------------
-// phasor(trig, rate, start, end, resetpos) = hsp_phasor(range, freq, trig1(trig)) + start 
-// with {
-// 	range = end-start;
-// 	freq = rate*float(ma.SR);
-// };
-
-
-
 //---------------------------------`(sc.)sinoscfb`---------------------------------------
 // SinOscFB is a sine oscillator that has phase modulation feedback; 
 // its output plugs back into the phase input. Basically this allows 
@@ -316,6 +331,9 @@ sinoscfb_p(freq, phase, feedback) = sfb(freq, phase, feedback) ~ _ with {
 //-----------------------------------------------------------------------------
 pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, modphase) * pmindex);
 
+
+
+
 //---------------------------------`(sc.)latch`---------------------------------------
 // Holds input signal value when triggered (`trig` moves from negative to positive). 
 // Outputs 0 until it receives its first trigger.
@@ -331,6 +349,9 @@ pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, mod
 //-----------------------------------------------------------------------------
 latch(trig) = _ : select2(trig1_1(trig), _, _) ~ _;
 
+
+
+
 //---------------------------------`(sc.)gate`---------------------------------------
 // Allows input signal value to pass when `trig` is positive, otherwise holds last value.
 //
@@ -345,3 +366,41 @@ latch(trig) = _ : select2(trig1_1(trig), _, _) ~ _;
 //-----------------------------------------------------------------------------
 gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
 
+
+
+//---------------------------------`(sc.)demand_1`---------------------------------------
+// A triggered state machine.
+// Its input acts as a trigger, it outputs the current state of the internal function.
+//
+// #### Usage
+//
+// ```
+// _ : demand(f) : _;
+// ```
+// with
+// 
+// * `f`: 	function called to determine next state, 
+// 			initial state input is `0`, all subsequent states are 
+// 			the output of previous call of `f`
+//-----------------------------------------------------------------------------
+demand_1(f, tr) = f ~ sc.latch(tr);
+
+
+
+
+//---------------------------------`(sc.)tdemand_1`---------------------------------------
+// A triggered state machine.
+// Its input acts as a trigger. If triggered, it outputs the current state of the internal function, otherwise 0.
+//
+// #### Usage
+//
+// ```
+// _ : tdemand_1(f) : _;
+// ```
+// with
+// 
+// * `f`: 	function called to determine next state, 
+// 			initial state input is `0`, all subsequent states are 
+// 			the output of previous call of `f`
+//-----------------------------------------------------------------------------
+tdemand_1(f, tr) = demand(f, tr) : select2(tr, 0, _);

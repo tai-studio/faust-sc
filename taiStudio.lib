@@ -5,6 +5,8 @@ declare copyright "MIT";
 import("stdfaust.lib");
 sc = library("scUGens.lib");
 
+
+
 //---------------------------------`(lf.)strictRising`---------------------------------------
 // 1 for strictly rising, 0 otherwise
 //
@@ -129,4 +131,6 @@ funcosc(func, freq, phase, reset) =  phasor(freq, phase, reset, size) : rdtable(
 // `size` — sample accuracy
 //-----------------------------------------------------------------------------
 func2waveform(function, size) = float(ba.time)/float(size) : function : size, _;
+
+
 
