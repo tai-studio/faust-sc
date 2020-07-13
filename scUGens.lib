@@ -24,8 +24,8 @@ lf = library("taiStudio.lib");
 // note that initial impulse for `phase % 1 == 0` only happens for `phase == 1` 
 //-----------------------------------------------------------------------------
 // impulse(freq) = os.lf_imptrain(freq);
-impulse(freq, 0) = 1-1', (phasor(freq, phase) : lf.strictFalling) :> _ ; 
-impulse(freq, phase) = phasor(freq, phase) : lf.strictFalling;
+impulse(freq, 0) = 1-1', (lfsaw_uni(freq, 0) : lf.strictFalling) :> _ ; 
+impulse(freq, phase) = lfsaw_uni(freq, phase) : lf.strictFalling;
 
 
 //---------------------------------`(sc.)lfsaw_uni`---------------------------------------
@@ -375,7 +375,7 @@ gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
 // #### Usage
 //
 // ```
-// _ : demand(f) : _;
+// _ : demand_1(f) : _;
 // ```
 // with
 // 
@@ -383,7 +383,7 @@ gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
 // 			initial state input is `0`, all subsequent states are 
 // 			the output of previous call of `f`
 //-----------------------------------------------------------------------------
-demand_1(f, tr) = f ~ sc.latch(tr);
+demand_1(f, tr) = f ~ latch(tr);
 
 
 
@@ -403,4 +403,4 @@ demand_1(f, tr) = f ~ sc.latch(tr);
 // 			initial state input is `0`, all subsequent states are 
 // 			the output of previous call of `f`
 //-----------------------------------------------------------------------------
-tdemand_1(f, tr) = demand(f, tr) : select2(tr, 0, _);
+tdemand_1(f, tr) = demand_1(f, tr) : select2(tr, 0, _);
