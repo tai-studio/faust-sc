@@ -117,6 +117,47 @@ lfpulse(freq, width, phase) = float(os.lf_sawpos_phase(phase, freq) <= width);
 lftri(freq, phase) = lfsaw(freq, phase) * 2: fold(-1, 1);
 
 
+//---------------------------------`(sc.)whitenoise`---------------------------------------
+// bipolar whitenoise generator 
+// #### Usage
+//
+// ```
+// whitenoise(amp) : _;
+// ```
+// with
+// * `amp`: amplitude
+//
+//-----------------------------------------------------------------------------
+whitenoise(amp) = no.noise * amp;
+
+
+
+//---------------------------------`(sc.)pinknoise`---------------------------------------
+// bipolar pink-noise generator 
+// #### Usage
+//
+// ```
+// pinknoise(amp) : _;
+// ```
+// with
+// * `amp`: amplitude
+//
+//-----------------------------------------------------------------------------
+pinknoise(amp) = no.pink_noise * amp;
+
+
+//---------------------------------`(sc.)dust`---------------------------------------
+// dust generator 
+// #### Usage
+//
+// ```
+// dust(density) : _;
+// ```
+// with
+// * `density`: approximate number of values per second
+//
+//-----------------------------------------------------------------------------
+dust(density) = no.sparse_noise(density);
 
 //---------------------------------`(sc.)mod`---------------------------------------
 // save modulo (SC style, i.e. \IR^2 \to \IR^+)
@@ -170,6 +211,31 @@ wrapAt(IDX, LIST) = ba.take(mod((IDX+1), size(LIST)), LIST);
 // 
 //-----------------------------------------------------------------------------
 at(IDX, LIST) = ba.take(IDX+1, LIST);
+
+
+
+
+//---------------------------------`(sc.)rotate`---------------------------------------
+// sc-style `rotate` for lists
+//
+// #### Usage
+//
+// ```
+// rotate(AMOUNT, list) : bus(sc.size(list))
+// ```
+// 
+// #### Example
+//
+// process = rotate(4, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+//
+//-----------------------------------------------------------------------------
+rotate(0, list) = list;
+rotate(NUMBER, (a, b, c)) = rotate(NUMBER-1, (c, a, b));
+rotate(NUMBER, (a, b)) = rotate(NUMBER-1, (b, a));
+rotate(NUMBER, elem) = elem;
+
+
+
 
 //---------------------------------`(sc.)wrap2`---------------------------------------
 // wrap signal between -hi, hi
@@ -383,8 +449,7 @@ gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
 // 			initial state input is `0`, all subsequent states are 
 // 			the output of previous call of `f`
 //-----------------------------------------------------------------------------
-demand_1(f, tr) = f ~ latch(tr);
-
+demand_1(f, tr) = f ~ par(i, outputs(f), latch(tr));
 
 
 
@@ -403,4 +468,21 @@ demand_1(f, tr) = f ~ latch(tr);
 // 			initial state input is `0`, all subsequent states are 
 // 			the output of previous call of `f`
 //-----------------------------------------------------------------------------
-tdemand_1(f, tr) = demand_1(f, tr) : select2(tr, 0, _);
+tdemand_1(f, tr) = demand_1(f, tr) : par(i, outputs(f), select2(tr, 0, _));
+
+
+//---------------------------------`(sc.)lpf`---------------------------------------
+// 2-nd order butterworth filter
+//
+// #### Usage
+//
+// ```
+// _ : tdemand_1(f) : _;
+// ```
+// with
+// 
+// * `f`: 	function called to determine next state, 
+// 			initial state input is `0`, all subsequent states are 
+// 			the output of previous call of `f`
+//-----------------------------------------------------------------------------
+lpf(freq) = fi.lowpass(2, freq);

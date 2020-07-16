@@ -18,6 +18,13 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `lftri` — `LFTri`
 + `pmosc` — `PMOsc`
 + `sinoscfb` — `SinOscFB`
++ `whitenoise` — `WhiteNoise`
++ `pinknoise` — `PinkNoise`
++ `dust` — `Dust`
+
+#### Filter
+
+lpf
 
 #### Tools
 
@@ -29,6 +36,7 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 + `size` — `Array:size`
 + `wrapAt` — `Array:wrapAt`
 + `at` — `Array:at`
++ `rotate` — `Array:rotate`
 
 #### Waveform manipulation
 + `wrap2` — `UGen:wrap2`
