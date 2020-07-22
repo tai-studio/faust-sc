@@ -6,6 +6,76 @@ import("stdfaust.lib");
 lf = library("taiStudio.lib");
 
 
+//---------------------------------`(sc.)hash`---------------------------------------
+// hashing an integer value. 
+//
+// #### Usage
+//
+// ```
+// int(_): hash : _;
+// ```
+//-----------------------------------------------------------------------------
+hash = ffunction(int hash (int), "scUGens.h", "");
+
+
+
+//---------------------------------`(sc.)trand`---------------------------------------
+// generates random integer values in the range [0, 2147483647]
+// based on 
+// JMC's implementation of the 
+// Ran088: L'Ecuyer's 1996 three-component Tausworthe generator "taus88"
+// 
+// 
+// #### Usage
+// 
+// ```
+// trand(s1, s2, s3) : _;
+// ```
+// with
+//   + `s1 >  2` — (int) 1st seed
+//   + `s2 >  8` — (int) 2nd seed
+//   + `s3 > 16` — (int) 3rd seed
+//
+// on change of (at least one) state, trand is re-seeded to that state configuration.  
+trand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) with {
+
+
+    // if input state does not change, feed back internal state 
+    inSelector(s1, s2, s3, i1, i2, i3) = 
+        select2(changed(s1, s2, s3), i1, s1),
+        select2(changed(s1, s2, s3), i2, s2),
+        select2(changed(s1, s2, s3), i3, s3) 
+    with {
+        changed(a, b, c) = lf.changed(a) | lf.changed(b) | lf.changed(c);
+    };
+
+    // generate integer random element in the range [0, 2147483647], 
+    // i.e. [2r0, 2r01111111111111111111111111111111] (all bits high but sign bit) 
+    rgen(s1, s2, s3) = inSelector(s1, s2, s3) : 
+        rgen_1( -2, 12, 13, 19), 
+        rgen_1( -8,  4,  2, 25), 
+        rgen_1(-16, 17,  3, 11);
+    rgen_1(a, b, c, d, s) =  ((s & a) << b) xor ( (s << c xor s) >> d);
+};
+
+
+//---------------------------------`(sc.)frand`---------------------------------------
+// generate random float values in the range [-1, 1]
+// 
+// #### Usage
+// 
+// ```
+// hash(s1, s2, s3) : _;
+// ```
+// with
+//   + `s1 >  2` — (int) 1st seed
+//   + `s2 >  8` — (int) 2nd seed
+//   + `s3 > 16` — (int) 3rd seed
+//
+// on change of (at least one) state, trand is re-seeded to that state configuration.  
+frand(s1, s2, s3) = (trand(s1, s2, s3)) / 2147483647.0;
+
+
 //---------------------------------`(sc.)impulse`---------------------------------------
 // Periodic 1-sample impulse at given frequency. 
 // Setting `freq == 0` and `phase == 0` 
