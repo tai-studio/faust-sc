@@ -3,8 +3,6 @@
 
 DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp language inspired by the interface of standard SuperCollider UGens.
 
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/S6S72858T)
-
 ## Implemented
 
 ### scUgens.lib
@@ -82,3 +80,5 @@ shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/is
 *Though, most of the research that went into this repository is done in my spare time, it has also been partially funded by the [RottingSounds](http://rottingsounds.org) (project AR 445-G24, awarded by the Austrian Science Fund (FWF)).*
 
 Please support me by listening to (and possibly purchasing) my music on [bandcamp](http://lfsaw.bandcamp.com).
+
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/S6S72858T)
