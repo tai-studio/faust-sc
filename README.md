@@ -1,8 +1,9 @@
 # faust-sc
 *2020, LFSaw ([interaction](http://tai-studio.org) | [music](http://lfsaw.de))*
 
-
 DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp language inspired by the interface of standard SuperCollider UGens.
+
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/S6S72858T)
 
 ## Implemented
 
