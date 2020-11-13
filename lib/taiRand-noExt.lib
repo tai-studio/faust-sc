@@ -1,0 +1,183 @@
+declare name "taiRand";
+declare author "LFSaw";
+declare copyright "MIT";
+
+import("stdfaust.lib");
+import("taiUtils.lib");
+lf = library("taiStudio.lib");
+sc = library("scUGens.lib");
+
+
+//---------------------------------`(rnd.)taus_rand`---------------------------------------
+// generates random integer values in the range [0, 2147483647] at sample rate
+// based on JMC's implementation of the 
+// Ran088: L'Ecuyer's 1996 three-component Tausworthe generator "taus88"
+// 
+// 
+// FIXME: generates negative values as well because of signed-int bitshifting
+// #### Usage
+// 
+// ```
+// taus_rand(s1, s2, s3) : _;
+// ```
+// with
+//   + `s1 >  2` — (int) 1st seed
+//   + `s2 >  8` — (int) 2nd seed
+//   + `s3 > 16` — (int) 3rd seed
+//
+// on change of (at least one) state, taus_rand is re-seeded to that state configuration.  
+taus_rand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) : abs(_) with {
+
+
+    // if input state does not change, feed back internal state 
+    inSelector(s1, s2, s3, i1, i2, i3) = 
+        select2(changed(s1, s2, s3), i1, s1),
+        select2(changed(s1, s2, s3), i2, s2),
+        select2(changed(s1, s2, s3), i3, s3) 
+    with {
+        changed(a, b, c) = lf.changed(a) | lf.changed(b) | lf.changed(c);
+    };
+
+    // generate integer random element in the range [0, 2147483647], 
+    // i.e. [2r0, 2r01111111111111111111111111111111] (all bits high but sign bit) 
+    rgen(s1, s2, s3) = inSelector(s1, s2, s3) : 
+        rgen_1( -2, 12, 13, 19), 
+        rgen_1( -8,  4,  2, 25), 
+        rgen_1(-16, 17,  3, 11);
+    rgen_1(a, b, c, d, s) =  ((s & a) << b) xor ( (s << c xor s) >> d);
+};
+
+//---------------------------------`(rnd.)taus_rand_normed`---------------------------------------
+// generate random float values in the range [-1, 1] at sample rate
+// 
+// FIXME: generates negative values because of signed-int bitshifting in `taus_rand`. 
+// Once that is fixed, change output range.
+// #### Usage
+// 
+// ```
+// taus_rand_normed(s1, s2, s3) : _;
+// ```
+// with
+//   + `s1 >  2` — (int) 1st seed
+//   + `s2 >  8` — (int) 2nd seed
+//   + `s3 > 16` — (int) 3rd seed
+//
+// incorrect version because of signed-int bitshifting. for a correct version, see `taus_rand_normed` (requires c-external).
+//
+taus_rand_normed(s1, s2, s3) = (taus_rand(s1, s2, s3) / 1073741823.0) - 1 ;
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///// FIXME replace ffunction definition
+
+// //---------------------------------`(rnd.)rand2`---------------------------------------
+// // generate random float values in the range [-range, range] at sample rate
+// // 
+// // note: relies on foreign functions (c-based platforms only)
+// //
+// // #### Usage
+// // 
+// // ```
+// // process = rand(1248245, 1) : _;
+// // ```
+// //
+// // on change of the seed, `rand` is re-seeded.  
+// // 
+// rand1(seed) = taus_rand_normed(s1, s2, s3) with {
+
+//     // mess up the bits of the seed
+//     hashedSeed = hash(seed);
+//     bitSeed = ffunction(int bitSeed (int, int, int) , "scUGens.h", "");
+
+//     // initialize 3-seed using given seed value and taking care of
+//     // the requirements. The constants are arbitrary.
+//     s1 = bitSeed(seed, 1243598713, 2);
+//     s2 = bitSeed(seed, 1821928721, 8);
+//     s3 = bitSeed(seed, 3093459404, 16);
+// };
+
+
+// //---------------------------------`(rnd.)rand2`---------------------------------------
+// // generate random float values in the range [-range, range] at sample rate
+// // 
+// // note: relies on foreign functions (c-based platforms only)
+// //
+// // #### Usage
+// // 
+// // ```
+// // process = rand(1248245, 1) : _;
+// // ```
+// //
+// // on change of the seed, `rand` is re-seeded.  
+// // 
+// rand2(seed, range) = rand1(seed) * 2 * range) - range;
+
+
+// //---------------------------------`(rnd.)rand`---------------------------------------
+// // generate random float values in the range [0, r_max] at sample rate
+// // 
+// // note: relies on foreign functions (c-based platforms only)
+// //
+// // #### Usage
+// // 
+// // ```
+// // process = rand(1248245, 1) : _;
+// // ```
+// //
+// // on change of the seed, `rand` is re-seeded.  
+// // 
+// rand(seed, r_max) = rand1(seed) * r_max;
+
+
+
+// //---------------------------------`(rnd.)rand1`---------------------------------------
+// // generate random float values in the range [0, r_max] at sample rate
+// // 
+// // note: relies on foreign functions (c-based platforms only)
+// //
+// // #### Usage
+// // 
+// // ```
+// // process = rand1(1248245, 1) : _;
+// // ```
+// //
+// // on change of the seed, `rand1` is re-seeded.  
+// // 
+// rrand(seed, r_min, r_max) = rand1(seed) * (rmax - rmin) + rmin;
+
+
+
+
+// // //---------------------------------`(rnd.)steady_taus_rand`---------------------------------------
+// // // generates random integer values in the range [0, 2147483647]
+// // // updates only if (any) seed is updated
+// // // based on JMC's implementation of the 
+// // // Ran088: L'Ecuyer's 1996 three-component Tausworthe generator "taus88"
+// // // 
+// // // 
+// // // 
+// // // #### Usage
+// // // 
+// // // ```
+// // // steady_taus_rand(s1, s2, s3) : _;
+// // // ```
+// // // with
+// // //   + `s1 >  2` — (int) 1st seed
+// // //   + `s2 >  8` — (int) 2nd seed
+// // //   + `s3 > 16` — (int) 3rd seed
+// // //
+// // // on change of (at least one) state, a new random value is chosen.  
+// // steady_taus_rand(s1, s2, s3) = rgen(s1, s2, s3) : (_ xor _ xor _) with {
+
+// //     // generate integer random element in the range [0, 2147483647], 
+// //     // i.e. [2r0, 2r01111111111111111111111111111111] (all bits high but sign bit) 
+// //     rgen(s1, s2, s3) = s1, s2, s3 : 
+// //         rgen_1( -2, 12, 13, 19), 
+// //         rgen_1( -8,  4,  2, 25), 
+// //         rgen_1(-16, 17,  3, 11);
+
+// //     // last `&` ensures values between [2r0, 2r01111111111111111111111111111111]
+// //     rgen_1(a, b, c, d, s) =  (left_shift((s & a), b)) xor right_shift( (left_shift(s, c) xor s), d) : _ & 2147483647;
+// // };

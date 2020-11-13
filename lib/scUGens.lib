@@ -3,78 +3,22 @@ declare author "LFSaw";
 declare copyright "MIT";
 
 import("stdfaust.lib");
+import("taiUtils.lib");
 lf = library("taiStudio.lib");
+rnd = library("taiRand.lib");
 
-
-//---------------------------------`(sc.)hash`---------------------------------------
-// hashing an integer value. 
+//---------------------------------`(sc.)hasher`---------------------------------------
+// hashing a value. output is a float between [0..1]
+//
+// this is a convenience definition equivalent to `rnd.fhash`. 
 //
 // #### Usage
 //
 // ```
-// int(_): hash : _;
+// _: hasher : _;
 // ```
 //-----------------------------------------------------------------------------
-hash = ffunction(int hash (int), "scUGens.h", "");
-
-
-
-//---------------------------------`(sc.)trand`---------------------------------------
-// generates random integer values in the range [0, 2147483647]
-// based on 
-// JMC's implementation of the 
-// Ran088: L'Ecuyer's 1996 three-component Tausworthe generator "taus88"
-// 
-// 
-// #### Usage
-// 
-// ```
-// trand(s1, s2, s3) : _;
-// ```
-// with
-//   + `s1 >  2` — (int) 1st seed
-//   + `s2 >  8` — (int) 2nd seed
-//   + `s3 > 16` — (int) 3rd seed
-//
-// on change of (at least one) state, trand is re-seeded to that state configuration.  
-trand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) with {
-
-
-    // if input state does not change, feed back internal state 
-    inSelector(s1, s2, s3, i1, i2, i3) = 
-        select2(changed(s1, s2, s3), i1, s1),
-        select2(changed(s1, s2, s3), i2, s2),
-        select2(changed(s1, s2, s3), i3, s3) 
-    with {
-        changed(a, b, c) = lf.changed(a) | lf.changed(b) | lf.changed(c);
-    };
-
-    // generate integer random element in the range [0, 2147483647], 
-    // i.e. [2r0, 2r01111111111111111111111111111111] (all bits high but sign bit) 
-    rgen(s1, s2, s3) = inSelector(s1, s2, s3) : 
-        rgen_1( -2, 12, 13, 19), 
-        rgen_1( -8,  4,  2, 25), 
-        rgen_1(-16, 17,  3, 11);
-    rgen_1(a, b, c, d, s) =  ((s & a) << b) xor ( (s << c xor s) >> d);
-};
-
-
-//---------------------------------`(sc.)frand`---------------------------------------
-// generate random float values in the range [-1, 1]
-// 
-// #### Usage
-// 
-// ```
-// hash(s1, s2, s3) : _;
-// ```
-// with
-//   + `s1 >  2` — (int) 1st seed
-//   + `s2 >  8` — (int) 2nd seed
-//   + `s3 > 16` — (int) 3rd seed
-//
-// on change of (at least one) state, trand is re-seeded to that state configuration.  
-frand(s1, s2, s3) = (trand(s1, s2, s3)) / 2147483647.0;
-
+hasher = rnd.fhash;
 
 //---------------------------------`(sc.)impulse`---------------------------------------
 // Periodic 1-sample impulse at given frequency. 
@@ -262,12 +206,12 @@ size(LIST) = ba.count(LIST);
 // #### Usage
 //
 // ```
-// wrapAt(IDX, (a, b, ...)) : _
+// wrapAt((a, b, ...), IDX) : _
 // ```
 // 
 // 
 //-----------------------------------------------------------------------------
-wrapAt(IDX, LIST) = ba.take(mod((IDX+1), size(LIST)), LIST);
+wrapAt(LIST, IDX) = ba.take(mod((IDX+1), size(LIST)), LIST);
 
 //---------------------------------`(sc.)at`---------------------------------------
 // sc-style `at` for lists (starting at 0, no wrapping)
@@ -275,12 +219,12 @@ wrapAt(IDX, LIST) = ba.take(mod((IDX+1), size(LIST)), LIST);
 // #### Usage
 //
 // ```
-// at(IDX, (a, b, ...)) : _
+// at((a, b, ...), IDX) : _
 // ```
 // 
 // 
 //-----------------------------------------------------------------------------
-at(IDX, LIST) = ba.take(IDX+1, LIST);
+at(LIST, IDX) = ba.take(IDX+1, LIST);
 
 
 
@@ -291,20 +235,89 @@ at(IDX, LIST) = ba.take(IDX+1, LIST);
 // #### Usage
 //
 // ```
-// rotate(AMOUNT, list) : bus(sc.size(list))
+// rotate(list, AMOUNT) : bus(sc.size(list))
 // ```
 // 
 // #### Example
 //
-// process = rotate(4, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// process = rotate((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
 //
 //-----------------------------------------------------------------------------
-rotate(0, list) = list;
-rotate(NUMBER, (a, b, c)) = rotate(NUMBER-1, (c, a, b));
-rotate(NUMBER, (a, b)) = rotate(NUMBER-1, (b, a));
-rotate(NUMBER, elem) = elem;
+rotate(list, 0) = list;
+rotate((a, b, c), NUMBER) = rotate((c, a, b), NUMBER-1);
+rotate((a, b), NUMBER) = rotate((b, a), NUMBER-1);
+rotate(elem, NUMBER) = elem;
 
 
+// //---------------------------------`(sc.)scramble`---------------------------------------
+// // sc-style `rotate` for lists
+// //
+// // #### Usage
+// //
+// // ```
+// // scramble(seed, list) : bus(sc.size(list))
+// // ```
+// // 
+// // #### Example
+// //
+// // process = scramble(1245678765, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// //
+// //-----------------------------------------------------------------------------
+// scramble(seed, (a, b, c)) = scramble(NUMBER-1, (c, a, b));
+// scramble(seed, (a, b)) = scramble(NUMBER-1, (b, a));
+// scramble(seed, elem) = elem;
+
+
+//---------------------------------`(sc.)drop`---------------------------------------
+// sc-style `drop` for lists (drop N left elements)
+//
+// #### Usage
+//
+// ```
+// drop(list, N) : bus(sc.size(list)-N)
+// ```
+// 
+// #### Example
+//
+// process = drop((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+//
+//-----------------------------------------------------------------------------
+drop(list, N) = ba.subseq(list, 0, ba.count(list) - N);
+
+// keep left elements
+//---------------------------------`(sc.)keep`---------------------------------------
+// sc-style `keep` for lists (keep N left elements)
+//
+// #### Usage
+//
+// ```
+// keep(list, N) : bus(N)
+// ```
+// 
+// #### Example
+//
+// process = keep((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+//
+//-----------------------------------------------------------------------------
+keep(list, N) = ba.subseq(list, N, ba.count(list));
+
+//---------------------------------`(sc.)reverse`---------------------------------------
+// sc-style `reverse` for lists
+//
+// #### Usage
+//
+// ```
+// reverse((x, xs))
+// ```
+// 
+// #### Example
+//
+// process = reverse((1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+//
+//-----------------------------------------------------------------------------
+reverse(x) = par(i, length, ba.take(length - i, x)) with {
+    length = ba.count(x);
+};
 
 
 //---------------------------------`(sc.)wrap2`---------------------------------------
@@ -556,3 +569,19 @@ tdemand_1(f, tr) = demand_1(f, tr) : par(i, outputs(f), select2(tr, 0, _));
 // 			the output of previous call of `f`
 //-----------------------------------------------------------------------------
 lpf(freq) = fi.lowpass(2, freq);
+
+
+//---------------------------------`(sc.)linlin`---------------------------------------
+// linear remapping
+//
+// #### Usage
+//
+// ```
+// _ : minmin(0, 1, 4, 10) : _
+// ```
+//-----------------------------------------------------------------------------
+linlin(in_min, in_max, out_min, out_max) = _ : normalise(in_min, in_max) : expand(out_min, out_max) 
+with{
+    normalise(r_min, r_max) = _ - r_min :  _ / (r_max - r_min);
+    expand(r_min, r_max) = _ * (r_max - r_min) : _ + rmin;
+};
