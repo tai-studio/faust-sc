@@ -214,7 +214,7 @@ process = sc.mod(a, b);
 #### linlin
 
 SC-style linear mapping.
-See  [linlin](http://doc.sccode.org/Overviews/Methods.html#linlin)
+See [linlin](http://doc.sccode.org/Overviews/Methods.html#linlin) (SuperCollider reference) for details.
 ```
 process = _ : sc.linlin(0, 1, 4, 10) : _;
 ```
@@ -225,7 +225,7 @@ process = _ : sc.linlin(0, 1, 4, 10) : _;
 
 #### size
 SuperCollider `Array:size`.
-See [size](http://doc.sccode.org/Overviews/Methods.html#size).
+See [size](http://doc.sccode.org/Overviews/Methods.html#size). (SuperCollider reference) for details.
 
 
 ```
@@ -236,7 +236,7 @@ process = sc.size((a, b, ...)) : N;
 #### wrapAt
 
 SuperCollider `Array:wrapAt`.
-See [wrapAt](http://doc.sccode.org/Overviews/Methods.html#wrapAt).
+See [wrapAt](http://doc.sccode.org/Overviews/Methods.html#wrapAt). (SuperCollider reference) for details.
 
 ```
 process = sc.wrapAt((a, b, ...), IDX) : _;
@@ -244,7 +244,7 @@ process = sc.wrapAt((a, b, ...), IDX) : _;
 
 #### at
 SuperCollider `Array:at`.
-See [at](http://doc.sccode.org/Overviews/Methods.html#at).
+See [at](http://doc.sccode.org/Overviews/Methods.html#at). (SuperCollider reference) for details.
 
 
 ```
@@ -254,7 +254,7 @@ process = sc.at((a, b, ...), IDX) : _;
 
 #### rotate
 SuperCollider `Array:rotate`.
-See [rotate](http://doc.sccode.org/Overviews/Methods.html#rotate).
+See [rotate](http://doc.sccode.org/Overviews/Methods.html#rotate). (SuperCollider reference) for details.
 
 ```
 process = sc.rotate(list, AMOUNT) : si.bus(sc.size(list));
@@ -264,7 +264,7 @@ process = sc.rotate(list, AMOUNT) : si.bus(sc.size(list));
 #### drop
 
 SC-style `drop` for lists (drop N left elements).
-See [drop](http://doc.sccode.org/Overviews/Methods.html#drop).
+See [drop](http://doc.sccode.org/Overviews/Methods.html#drop). (SuperCollider reference) for details.
 
 ```
 process = sc.drop(list, N) : si.bus(sc.size(list)-N);
@@ -275,7 +275,7 @@ process = sc.drop(list, N) : si.bus(sc.size(list)-N);
 #### keep
 
 SC-style `keep` for lists (keep N left elements).
-See [keep](http://doc.sccode.org/Overviews/Methods.html#keep).
+See [keep](http://doc.sccode.org/Overviews/Methods.html#keep). (SuperCollider reference) for details.
 
 ```
 process = sc.keep(list, N) : si.bus(N);
@@ -285,7 +285,7 @@ process = sc.keep(list, N) : si.bus(N);
 #### reverse
 
 SC-style `reverse` for lists (reverse N left elements).
-See [reverse](http://doc.sccode.org/Overviews/Methods.html#reverse).
+See [reverse](http://doc.sccode.org/Overviews/Methods.html#reverse). (SuperCollider reference) for details.
 
 ```
 process = sc.reverse(list) : si.bus(sc.size(list));
@@ -299,7 +299,7 @@ process = sc.reverse(list) : si.bus(sc.size(list));
 #### wrap2
 
 SC-style `wrap2` a signal.
-See [wrap2](http://doc.sccode.org/Overviews/Methods.html#wrap2)
+See [wrap2](http://doc.sccode.org/Overviews/Methods.html#wrap2) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.wrap2(hi) : _;
@@ -309,7 +309,7 @@ process = _ : sc.wrap2(hi) : _;
 #### wrap
 
 SC-style `wrap` a signal.
-See [wrap](http://doc.sccode.org/Overviews/Methods.html#wrap)
+See [wrap](http://doc.sccode.org/Overviews/Methods.html#wrap) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.wrap(lo, hi) : _;
@@ -319,7 +319,7 @@ process = _ : sc.wrap(lo, hi) : _;
 #### clip2
 
 SC-style `clip2` a signal.
-See [clip2](http://doc.sccode.org/Overviews/Methods.html#clip2)
+See [clip2](http://doc.sccode.org/Overviews/Methods.html#clip2) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.clip2(hi) : _;
@@ -329,7 +329,7 @@ process = _ : sc.clip2(hi) : _;
 #### clip
 
 SC-style `clip` a signal.
-See [clip](http://doc.sccode.org/Overviews/Methods.html#clip)
+See [clip](http://doc.sccode.org/Overviews/Methods.html#clip) (SuperCollider reference) for details.
 
 
 ```
@@ -340,7 +340,7 @@ process = _ : sc.clip(lo, hi) : _;
 #### fold
 
 SC-style `fold` a signal.
-See [fold](http://doc.sccode.org/Overviews/Methods.html#fold)
+See [fold](http://doc.sccode.org/Overviews/Methods.html#fold) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.fold(lo, hi) : _;
@@ -350,7 +350,7 @@ process = _ : sc.fold(lo, hi) : _;
 #### fold2
 
 SC-style `fold2` a signal.
-See [fold2](http://doc.sccode.org/Overviews/Methods.html#fold2)
+See [fold2](http://doc.sccode.org/Overviews/Methods.html#fold2) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.fold2(hi) : _;
@@ -364,22 +364,22 @@ process = _ : sc.fold2(hi) : _;
 #### trig_1
 
 SC-style `Trig` with 1-sample duration .
-See [Trig](http://doc.sccode.org/Classes/Trig.html).
+See [Trig](http://doc.sccode.org/Classes/Trig.html) (SuperCollider reference) for details.
 
 #### trig1_1
 
 SC-style `Trig1` with 1-sample duration.
-See [Trig1](http://doc.sccode.org/Classes/Trig1.html).
+See [Trig1](http://doc.sccode.org/Classes/Trig1.html) (SuperCollider reference) for details.
 
 #### latch
 
 SC-style `Latch`.
-See [Latch](http://doc.sccode.org/Classes/Latch.html).
+See [Latch](http://doc.sccode.org/Classes/Latch.html) (SuperCollider reference) for details.
 
 #### gate
 
 SC-style `Gate`.
-See [Gate](http://doc.sccode.org/Classes/Gate.html).
+See [Gate](http://doc.sccode.org/Classes/Gate.html) (SuperCollider reference) for details.
 
 
 
@@ -388,7 +388,7 @@ See [Gate](http://doc.sccode.org/Classes/Gate.html).
 #### demand_1
 
 an attempt at `Demand-like functionality`
-See [Demand](http://doc.sccode.org/Classes/Demand.html).
+See [Demand](http://doc.sccode.org/Classes/Demand.html) (SuperCollider reference) for details.
 
 ```
 process = _ : sc.demand_1(f) : _;
