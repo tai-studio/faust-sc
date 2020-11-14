@@ -7,6 +7,9 @@ import("taiUtils.lib");
 lf = library("taiStudio.lib");
 rnd = library("taiRand.lib");
 
+// TODO: whitenoise, pinknoise, dust <— create seeded versions
+
+
 //---------------------------------`(sc.)hasher`---------------------------------------
 // hashing a value. output is a float between [0..1]
 //
@@ -15,7 +18,7 @@ rnd = library("taiRand.lib");
 // #### Usage
 //
 // ```
-// _: hasher : _;
+// process = sc.hasher(v) : _;
 // ```
 //-----------------------------------------------------------------------------
 hasher = rnd.fhash;
@@ -29,7 +32,7 @@ hasher = rnd.fhash;
 // #### Usage
 //
 // ```
-// impulse(freq, phase) : _;
+// process = sc.impulse(freq, phase) : _;
 // ```
 // with
 //
@@ -48,7 +51,7 @@ impulse(freq, phase) = lfsaw_uni(freq, phase) : lf.strictFalling;
 // #### Usage
 //
 // ```
-// lfsaw_uni(freq, phase) : _;
+// process = sc.lfsaw_uni(freq, phase) : _;
 // ```
 // with
 // 
@@ -72,7 +75,7 @@ lfsaw_uni(freq, phase) = inc(freq) + phaseChange(phase : ma.frac) : + ~ ma.frac 
 // #### Usage
 //
 // ```
-// lfsaw(freq, phase) : _;
+// process = sc.lfsaw(freq, phase) : _;
 // ```
 // with
 //
@@ -91,7 +94,7 @@ lfsaw(freq, phase) = lfsaw_uni(freq, phase) * 2 - 1;
 // #### Usage
 //
 // ```
-// sinosc(freq, phase)
+// process = sc.sinosc(freq, phase)
 // ```
 // with 
 // * `freq`: frequency in Hz
@@ -104,7 +107,7 @@ sinosc(freq, phase) = os.oscp(freq, phase);
 // #### Usage
 //
 // ```
-// lfpulse(freq, width, phase)
+// process = sc.lfpulse(freq, width, phase)
 // ```
 // with
 // * `freq`: frequency in Hz
@@ -120,7 +123,7 @@ lfpulse(freq, width, phase) = float(os.lf_sawpos_phase(phase, freq) <= width);
 // #### Usage
 //
 // ```
-// lftri(freq, phase)
+// process = sc.lftri(freq, phase)
 // ```
 // with
 // * `freq`: frequency in Hz
@@ -131,12 +134,53 @@ lfpulse(freq, width, phase) = float(os.lf_sawpos_phase(phase, freq) <= width);
 lftri(freq, phase) = lfsaw(freq, phase) * 2: fold(-1, 1);
 
 
+//---------------------------------`(sc.)sinoscfb`---------------------------------------
+// SinOscFB is a sine oscillator that has phase modulation feedback; 
+// its output plugs back into the phase input. Basically this allows 
+// a modulation between a sine wave and a sawtooth like wave. 
+// Overmodulation causes chaotic oscillation. 
+//
+// #### Usage
+//
+// ```
+// process = sc.sinoscfb(freq, feedback) : _;
+// ```
+// with
+// * `freq`: frequency in Hz
+// * `phase`: phase in the range of 0..1
+// * `feedback`: amplitude of phase feedback in radians.
+//-----------------------------------------------------------------------------
+sinoscfb(freq, feedback) = sinoscfb_p(freq, 0, feedback);
+
+sinoscfb_p(freq, phase, feedback) = sfb(freq, phase, feedback) ~ _ with {
+    sfb(freq, phase, feedback, x) = sinosc(freq, phase + feedback * x);
+} ;
+
+//---------------------------------`(sc.)pmosc`---------------------------------------
+// Phase modulation sinwave oscillator pair.
+//
+// #### Usage
+//
+// ```
+// process = sc.pmosc(carFreq, modFreq, modAmp) : _;
+// ```
+// with
+// 
+// * `freq`: frequency in Hz
+// * `width`: pulse width duty in the range of 0..1
+// * `phase`: phase in the range of 0..1
+//-----------------------------------------------------------------------------
+pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, modphase) * pmindex);
+
+
+///////////////////// NOISE //////////////////////
+
 //---------------------------------`(sc.)whitenoise`---------------------------------------
 // bipolar whitenoise generator 
 // #### Usage
 //
 // ```
-// whitenoise(amp) : _;
+// process = sc.whitenoise(amp) : _;
 // ```
 // with
 // * `amp`: amplitude
@@ -151,7 +195,7 @@ whitenoise(amp) = no.noise * amp;
 // #### Usage
 //
 // ```
-// pinknoise(amp) : _;
+// process = sc.pinknoise(amp) : _;
 // ```
 // with
 // * `amp`: amplitude
@@ -165,7 +209,7 @@ pinknoise(amp) = no.pink_noise * amp;
 // #### Usage
 //
 // ```
-// dust(density) : _;
+// process = sc.dust(density) : _;
 // ```
 // with
 // * `density`: approximate number of values per second
@@ -173,18 +217,61 @@ pinknoise(amp) = no.pink_noise * amp;
 //-----------------------------------------------------------------------------
 dust(density) = no.sparse_noise(density);
 
+
+//////////// FILTER
+
+
+//---------------------------------`(sc.)lpf`---------------------------------------
+// 2-nd order butterworth filter
+//
+// #### Usage
+//
+// ```
+// process = _ : sc.lpf(freq) : _;
+// ```
+// with
+// 
+// * `freq`: frequency(Hz)
+//-----------------------------------------------------------------------------
+lpf(freq) = fi.lowpass(2, freq);
+
+
+//////////// TOOLS
+
+
+
 //---------------------------------`(sc.)mod`---------------------------------------
 // save modulo (SC style, i.e. \IR^2 \to \IR^+)
 //
 // #### Usage
 //
 // ```
-// mod(a, b)
+// process = sc.mod(a, b);
 // ```
 //-----------------------------------------------------------------------------
 mod(a, 0) = 0;
 mod(a, b) = ba.if(a > 0, a % b, a % b + b);
 
+
+
+//---------------------------------`(sc.)linlin`---------------------------------------
+// linear remapping
+//
+// #### Usage
+//
+// ```
+// process = _ : sc.linlin(0, 1, 4, 10) : _;
+// ```
+//-----------------------------------------------------------------------------
+linlin(in_min, in_max, out_min, out_max) = _ : normalise(in_min, in_max) : expand(out_min, out_max) 
+with{
+    normalise(r_min, r_max) = _ - r_min :  _ / (r_max - r_min);
+    expand(r_min, r_max) = _ * (r_max - r_min) : _ + rmin;
+};
+
+
+
+//////////// Array-methods for lists
 
 //---------------------------------`(sc.)size`---------------------------------------
 // size of a list
@@ -192,7 +279,7 @@ mod(a, b) = ba.if(a > 0, a % b, a % b + b);
 // #### Usage
 //
 // ```
-// size((a, b, ...)) : N
+// process = sc.size((a, b, ...)) : N;
 // ```
 // with N being a constant at runtime
 // 
@@ -206,7 +293,7 @@ size(LIST) = ba.count(LIST);
 // #### Usage
 //
 // ```
-// wrapAt((a, b, ...), IDX) : _
+// process = sc.wrapAt((a, b, ...), IDX) : _;
 // ```
 // 
 // 
@@ -219,7 +306,7 @@ wrapAt(LIST, IDX) = ba.take(mod((IDX+1), size(LIST)), LIST);
 // #### Usage
 //
 // ```
-// at((a, b, ...), IDX) : _
+// process = sc.at((a, b, ...), IDX) : _;
 // ```
 // 
 // 
@@ -235,12 +322,12 @@ at(LIST, IDX) = ba.take(IDX+1, LIST);
 // #### Usage
 //
 // ```
-// rotate(list, AMOUNT) : bus(sc.size(list))
+// process = sc.rotate(list, AMOUNT) : bus(sc.size(list));
 // ```
 // 
 // #### Example
 //
-// process = rotate((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+// process = sc.rotate((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
 //
 //-----------------------------------------------------------------------------
 rotate(list, 0) = list;
@@ -250,7 +337,7 @@ rotate(elem, NUMBER) = elem;
 
 
 // //---------------------------------`(sc.)scramble`---------------------------------------
-// // sc-style `rotate` for lists
+// // sc-style `scramble` for lists
 // //
 // // #### Usage
 // //
@@ -260,7 +347,7 @@ rotate(elem, NUMBER) = elem;
 // // 
 // // #### Example
 // //
-// // process = scramble(1245678765, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// // process = sc.scramble(1245678765, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
 // //
 // //-----------------------------------------------------------------------------
 // scramble(seed, (a, b, c)) = scramble(NUMBER-1, (c, a, b));
@@ -274,12 +361,12 @@ rotate(elem, NUMBER) = elem;
 // #### Usage
 //
 // ```
-// drop(list, N) : bus(sc.size(list)-N)
+// process = sc.drop(list, N) : bus(sc.size(list)-N);
 // ```
 // 
 // #### Example
 //
-// process = drop((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+// process = sc.drop((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
 //
 //-----------------------------------------------------------------------------
 drop(list, N) = ba.subseq(list, 0, ba.count(list) - N);
@@ -291,12 +378,12 @@ drop(list, N) = ba.subseq(list, 0, ba.count(list) - N);
 // #### Usage
 //
 // ```
-// keep(list, N) : bus(N)
+// process = sc.keep(list, N) : bus(N);
 // ```
 // 
 // #### Example
 //
-// process = keep((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+// process = sc.keep((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
 //
 //-----------------------------------------------------------------------------
 keep(list, N) = ba.subseq(list, N, ba.count(list));
@@ -307,12 +394,12 @@ keep(list, N) = ba.subseq(list, N, ba.count(list));
 // #### Usage
 //
 // ```
-// reverse((x, xs))
+// process = sc.reverse((x, xs))
 // ```
 // 
 // #### Example
 //
-// process = reverse((1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// process = sc.reverse((1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
 //
 //-----------------------------------------------------------------------------
 reverse(x) = par(i, length, ba.take(length - i, x)) with {
@@ -320,13 +407,15 @@ reverse(x) = par(i, length, ba.take(length - i, x)) with {
 };
 
 
+//////////////////// Waveform manipulation
+
 //---------------------------------`(sc.)wrap2`---------------------------------------
 // wrap signal between -hi, hi
 //
 // #### Usage
 //
 // ```
-// _ : wrap2(hi) : _
+// process = _ : sc.wrap2(hi) : _;
 // ```
 //-----------------------------------------------------------------------------
 wrap2(hi) = _ % hi; // note the use of faust-specific modulo (resulting in values between [-hi, hi]) here
@@ -338,7 +427,7 @@ wrap2(hi) = _ % hi; // note the use of faust-specific modulo (resulting in value
 // #### Usage
 //
 // ```
-// _ : wrap(lo, hi) : _
+// process = _ : sc.wrap(lo, hi) : _;
 // ```
 //-----------------------------------------------------------------------------
 wrap(0, hi) = _ - hi2 : wrap2(hi2) + (hi2) with {
@@ -355,7 +444,7 @@ wrap(lo, hi) = _ - lo : wrap(0, hi - lo) + lo;
 // #### Usage
 //
 // ```
-// _ : clip2(hi) : _
+// process = _ : sc.clip2(hi) : _;
 // ```
 //-----------------------------------------------------------------------------
 clip2(hi) = _ : clip(-abs_h, abs_h) with {
@@ -369,7 +458,7 @@ clip2(hi) = _ : clip(-abs_h, abs_h) with {
 // #### Usage
 //
 // ```
-// _ : clip(lo, hi) : _
+// process = _ : sc.clip(lo, hi) : _;
 // ```
 //-----------------------------------------------------------------------------
 clip(lo, hi) = _ : clip_l(lo) : clip_h(hi) with {
@@ -384,7 +473,7 @@ clip(lo, hi) = _ : clip_l(lo) : clip_h(hi) with {
 // #### Usage
 //
 // ```
-// _ : fold(lo, hi) : _
+// process = _ : sc.fold(lo, hi) : _;
 // ```
 //-----------------------------------------------------------------------------
 fold(lo, hi, x) = fold_0(hi-lo, x - lo) + lo with {
@@ -401,18 +490,21 @@ fold(lo, hi, x) = fold_0(hi-lo, x - lo) + lo with {
 // #### Usage
 //
 // ```
-// _ : fold2(hi) : _
+// process = _ : sc.fold2(hi) : _;
 // ```
 // 
 // #### Example
 //
 // ```
-// process = sinosc(ma.SR / 256, 0) * factor <: _/factor, fold2(0.2, _) with {
+// process = sc.sinosc(ma.SR / 256, 0) * factor <: _/factor, fold2(0.2, _) with {
 //     factor = 10;
 // };
 // ```
 //-----------------------------------------------------------------------------
 fold2(hi) = _ : fold(-hi, hi);
+
+
+//////////////// Triggers and gates
 
 //---------------------------------`(sc.)trig1_1`---------------------------------------
 // When a nonpositive to positive transition occurs at the input, 
@@ -440,48 +532,6 @@ trig1_1(x) = lf.strictRising(x > 0);
 // ```
 //-----------------------------------------------------------------------------
 trig_1(x) = lf.strictRising(x > 0) * x;
-
-
-//---------------------------------`(sc.)sinoscfb`---------------------------------------
-// SinOscFB is a sine oscillator that has phase modulation feedback; 
-// its output plugs back into the phase input. Basically this allows 
-// a modulation between a sine wave and a sawtooth like wave. 
-// Overmodulation causes chaotic oscillation. 
-//
-// #### Usage
-//
-// ```
-// sinoscfb(freq, feedback) : _;
-// ```
-// with
-// * `freq`: frequency in Hz
-// * `phase`: phase in the range of 0..1
-// * `feedback`: amplitude of phase feedback in radians.
-//-----------------------------------------------------------------------------
-sinoscfb(freq, feedback) = sinoscfb_p(freq, 0, feedback);
-
-sinoscfb_p(freq, phase, feedback) = sfb(freq, phase, feedback) ~ _ with {
-    sfb(freq, phase, feedback, x) = sinosc(freq, phase + feedback * x);
-} ;
-
-//---------------------------------`(sc.)pmosc`---------------------------------------
-// Phase modulation sinwave oscillator pair.
-//
-// #### Usage
-//
-// ```
-// pmosc(carFreq, modFreq, modAmp) : _;
-// ```
-// with
-// 
-// * `freq`: frequency in Hz
-// * `width`: pulse width duty in the range of 0..1
-// * `phase`: phase in the range of 0..1
-//-----------------------------------------------------------------------------
-pmosc(carfreq, modfreq, pmindex, modphase) = sinosc(carfreq, sinosc(modfreq, modphase) * pmindex);
-
-
-
 
 //---------------------------------`(sc.)latch`---------------------------------------
 // Holds input signal value when triggered (`trig` moves from negative to positive). 
@@ -524,7 +574,7 @@ gate(trig) = _ : select2(trig <= 0, _, _) ~ _;
 // #### Usage
 //
 // ```
-// _ : demand_1(f) : _;
+// process = _ : sc.demand_1(f) : _;
 // ```
 // with
 // 
@@ -543,7 +593,7 @@ demand_1(f, tr) = f ~ par(i, outputs(f), latch(tr));
 // #### Usage
 //
 // ```
-// _ : tdemand_1(f) : _;
+// process = _ : sc.tdemand_1(f) : _;
 // ```
 // with
 // 
@@ -554,34 +604,4 @@ demand_1(f, tr) = f ~ par(i, outputs(f), latch(tr));
 tdemand_1(f, tr) = demand_1(f, tr) : par(i, outputs(f), select2(tr, 0, _));
 
 
-//---------------------------------`(sc.)lpf`---------------------------------------
-// 2-nd order butterworth filter
-//
-// #### Usage
-//
-// ```
-// _ : tdemand_1(f) : _;
-// ```
-// with
-// 
-// * `f`: 	function called to determine next state, 
-// 			initial state input is `0`, all subsequent states are 
-// 			the output of previous call of `f`
-//-----------------------------------------------------------------------------
-lpf(freq) = fi.lowpass(2, freq);
 
-
-//---------------------------------`(sc.)linlin`---------------------------------------
-// linear remapping
-//
-// #### Usage
-//
-// ```
-// _ : minmin(0, 1, 4, 10) : _
-// ```
-//-----------------------------------------------------------------------------
-linlin(in_min, in_max, out_min, out_max) = _ : normalise(in_min, in_max) : expand(out_min, out_max) 
-with{
-    normalise(r_min, r_max) = _ - r_min :  _ / (r_max - r_min);
-    expand(r_min, r_max) = _ * (r_max - r_min) : _ + rmin;
-};

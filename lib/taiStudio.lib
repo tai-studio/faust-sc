@@ -13,7 +13,7 @@ sc = library("scUGens.lib");
 // #### Usage
 //
 // ```
-// _ : strictRising : _
+// process = _ : lf.strictRising : _
 // ```
 //-----------------------------------------------------------------------------
 strictRising(x) = x > x';
@@ -24,7 +24,7 @@ strictRising(x) = x > x';
 // #### Usage
 //
 // ```
-// _ : strictFalling : _
+// process = _ : lf.strictFalling : _
 // ```
 //-----------------------------------------------------------------------------
 strictFalling(x) =  x < x';
@@ -35,7 +35,7 @@ strictFalling(x) =  x < x';
 // #### Usage
 //
 // ```
-// _ : changed : _;
+// process = _ : lf.changed : _;
 // ```
 //-----------------------------------------------------------------------------
 changed(x) = x != x';
@@ -46,7 +46,7 @@ changed(x) = x != x';
 // #### Usage
 //
 // ```
-// _ : falling : _;
+// process = _ : lf.falling : _;
 // ```
 //-----------------------------------------------------------------------------
 falling(x) = x <= x';
@@ -57,7 +57,7 @@ falling(x) = x <= x';
 // #### Usage
 //
 // ```
-// _ : rising : _;
+// process = _ : lf.rising : _;
 // ```
 //-----------------------------------------------------------------------------
 rising(x) = x >= x';
@@ -68,11 +68,70 @@ rising(x) = x >= x';
 // #### Usage
 //
 // ```
-// _ : unchanged : _;
+// process = _ : lf.unchanged : _;
 // ```
 //-----------------------------------------------------------------------------
 unchanged(x) = x == x';
 
+
+
+///////////////////////////// bit operations
+
+
+//---------------------------------`(lf.)bitNot`---------------------------------------
+//
+// (author: Till Bovermann) 
+//
+// bitwise Not
+//
+// note: relies on foreign functions (c-based platforms only)
+//
+//
+// #### Usage
+//
+// ```
+// 16: bitNot
+// ```
+//-----------------------------------------------------------------------------
+bitNot = ffunction(int bit_not (int), "scUGens.h", "");
+
+//---------------------------------`(lf.)left_shift`---------------------------------------
+//
+// (author: Till Bovermann) 
+//
+// unsigned left shift operator
+//
+// note: relies on foreign functions (c-based platforms only)
+//
+//
+// #### Usage
+//
+// ```
+// _ : left_shift(_)
+// ```
+//-----------------------------------------------------------------------------
+left_shift = ffunction(int bit_leftShift (int, int), "scUGens.h", "");
+
+
+//---------------------------------`(lf.)right_shift`---------------------------------------
+//
+// (author: Till Bovermann) 
+//
+// unsigned right shift operator
+//
+// note: relies on foreign functions (c-based platforms only)
+//
+//
+// #### Usage
+//
+// ```
+// _ : right_shift(_)
+// ```
+//-----------------------------------------------------------------------------
+right_shift = ffunction(int bit_rightShift (int, int), "scUGens.h", "");
+
+
+///////////// Synthesis
 
 //---------------------------------`(lf.)phasor`---------------------------------------
 // resettable phasor
@@ -80,7 +139,7 @@ unchanged(x) = x == x';
 // #### Usage
 //
 // ```
-// phasor(freq, phase, reset, length) : _;
+// process = lf.phasor(freq, phase, reset, length) : _;
 // ```
 //-----------------------------------------------------------------------------
 phasor(freq, phase, reset, length) = int(os.hs_phasor(length, freq, sc.trig1_1(reset)) + (phase * length)) % length;
@@ -92,7 +151,7 @@ phasor(freq, phase, reset, length) = int(os.hs_phasor(length, freq, sc.trig1_1(r
 // #### Usage
 //
 // ```
-// sineosc_s(freq, phase, sync) : _;
+// process = lf.sineosc_s(freq, phase, sync) : _;
 // ```
 //-----------------------------------------------------------------------------
 sineosc_s(freq, phase, sync) =  phasor(freq, phase, sync, waveLength) : rdtable(waveLength, wave)
@@ -107,7 +166,7 @@ with {
 // #### Usage
 //
 // ```
-// funcosc(func, freq, phase, reset)
+// process = lf.funcosc(func, freq, phase, reset);
 // ```
 // with
 // `freq` — oscillation frequency
@@ -124,13 +183,17 @@ funcosc(func, freq, phase, reset) =  phasor(freq, phase, reset, size) : rdtable(
 // #### Usage
 //
 // ```
-// func2waveform(function, size) : _,_
+// process = lf.func2waveform(function, size) : _,_;
 // ```
 // with
 // `function` — function with one variable element; evaluated in the rangfe of [0..1]
 // `size` — sample accuracy
 //-----------------------------------------------------------------------------
 func2waveform(function, size) = float(ba.time)/float(size) : function : size, _;
+
+
+
+
 
 
 

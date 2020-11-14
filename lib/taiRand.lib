@@ -3,7 +3,7 @@ declare author "LFSaw";
 declare copyright "MIT";
 
 import("stdfaust.lib");
-import("taiUtils.lib");
+lfutil = library("taiUtils.lib");
 lf = library("taiStudio.lib");
 sc = library("scUGens.lib");
 
@@ -14,19 +14,19 @@ sc = library("scUGens.lib");
 // #### Usage
 //
 // ```
-// int(_): ihash : _;
+// process = int(_): rnd.ihash : _;
 // ```
 //-----------------------------------------------------------------------------
 ihash = ffunction(int bitHash (int), "scUGens.h", "");
 
 
-//---------------------------------`(sc.)fhash`---------------------------------------
+//---------------------------------`(rnd.)fhash`---------------------------------------
 // hashing a value. output is a float between [0..1]
 //
 // #### Usage
 //
 // ```
-// _: fhash : _;
+// process = _: rnd.fhash : _;
 // ```
 //-----------------------------------------------------------------------------
 fhash = ffunction(float hasher (float), "scUGens.h", "");
@@ -42,7 +42,7 @@ fhash = ffunction(float hasher (float), "scUGens.h", "");
 // #### Usage
 // 
 // ```
-// taus_rand(s1, s2, s3) : _;
+// process = rnd.taus_rand(s1, s2, s3) : _;
 // ```
 // with
 //   + `s1 >  2` — (int) 1st seed
@@ -70,7 +70,7 @@ taus_rand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) with {
         rgen_1(-16, 17,  3, 11);
 
     // last `&` ensures values between [2r0, 2r01111111111111111111111111111111]
-    rgen_1(a, b, c, d, s) =  (left_shift((s & a), b)) xor right_shift( (left_shift(s, c) xor s), d) : _ & 2147483647;
+    rgen_1(a, b, c, d, s) =  (lfutil.left_shift((s & a), b)) xor lfutil.right_shift( (lfutil.left_shift(s, c) xor s), d) : _ & 2147483647;
 };
 
 
@@ -82,7 +82,7 @@ taus_rand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) with {
 // #### Usage
 // 
 // ```
-// taus_rand_normed(s1, s2, s3) : _;
+// process = rnd.taus_rand_normed(s1, s2, s3) : _;
 // ```
 // with
 //   + `s1 >  2` — (int) 1st seed
@@ -104,7 +104,7 @@ taus_rand_normed(s1, s2, s3) = taus_rand(s1, s2, s3) / 2147483647.0;
 // #### Usage
 // 
 // ```
-// process = rand(1248245, 1) : _;
+// process = rnd.rand1(1248245) : _;
 // ```
 //
 // on change of the seed, `rand` is re-seeded.  
@@ -131,7 +131,7 @@ rand1(seed) = taus_rand_normed(s1, s2, s3) with {
 // #### Usage
 // 
 // ```
-// process = rand(1248245, 1) : _;
+// process = rnd.rand2(1248245, 1) : _;
 // ```
 //
 // on change of the seed, `rand` is re-seeded.  
@@ -147,7 +147,7 @@ rand2(seed, range) = (rand1(seed) * 2 * range) - range;
 // #### Usage
 // 
 // ```
-// process = rand(1248245, 1) : _;
+// process = rnd.rand(1248245, 1) : _;
 // ```
 //
 // on change of the seed, `rand` is re-seeded.  
@@ -164,7 +164,7 @@ rand(seed, r_max) = rand1(seed) * r_max;
 // #### Usage
 // 
 // ```
-// process = rrand(1248245, -1, 1) : _;
+// process = rnd.rrand(1248245, -1, 1) : _;
 // ```
 //
 // on change of the seed, `rrand` is re-seeded.  
@@ -180,7 +180,7 @@ rrand(seed, r_min, r_max) = rand1(seed) * (r_max - r_min) + r_min;
 // #### Usage
 // 
 // ```
-// process = irand(1248245, 1) : _;
+// process = rnd.irand(1248245, 1) : _;
 // ```
 //
 // on change of the seed, `irand` is re-seeded.  
@@ -196,7 +196,7 @@ irand(seed, r_max) = int(rand(seed, r_max + 1));
 // #### Usage
 // 
 // ```
-// process = irand2(1248245, 10) : _;
+// process = rnd.irand2(1248245, 10) : _;
 // ```
 //
 // on change of the seed, `irand2` is re-seeded.  
@@ -212,7 +212,7 @@ irand2(seed, range) = int(rand2(seed, range + 1));
 // #### Usage
 // 
 // ```
-// process = irrand(1248245, 5, 10) : _;
+// process = rnd.irrand(1248245, 5, 10) : _;
 // ```
 //
 // on change of the seed, `irrand` is re-seeded.  
@@ -231,7 +231,7 @@ irrand(seed, r_min, r_max) = int(rrand(seed, r_min -1, r_max + 1));
 // // #### Usage
 // // 
 // // ```
-// // steady_taus_rand(s1, s2, s3) : _;
+// // process = rnd.steady_taus_rand(s1, s2, s3) : _;
 // // ```
 // // with
 // //   + `s1 >  2` — (int) 1st seed
@@ -249,6 +249,6 @@ irrand(seed, r_min, r_max) = int(rrand(seed, r_min -1, r_max + 1));
 //         rgen_1(-16, 17,  3, 11);
 
 //     // last `&` ensures values between [2r0, 2r01111111111111111111111111111111]
-//     rgen_1(a, b, c, d, s) =  (left_shift((s & a), b)) xor right_shift( (left_shift(s, c) xor s), d) : _ & 2147483647;
+//     rgen_1(a, b, c, d, s) =  (lfutil.left_shift((s & a), b)) xor lfutil.right_shift( (lfutil.left_shift(s, c) xor s), d) : _ & 2147483647;
 // };
 
