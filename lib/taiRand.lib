@@ -3,7 +3,6 @@ declare author "LFSaw";
 declare copyright "MIT";
 
 import("stdfaust.lib");
-lfutil = library("taiUtils.lib");
 lf = library("taiStudio.lib");
 sc = library("scUGens.lib");
 
@@ -70,7 +69,7 @@ taus_rand(s1, s2, s3) = rgen(s1, s2, s3) ~ si.bus(3) : (_ xor _ xor _) with {
         rgen_1(-16, 17,  3, 11);
 
     // last `&` ensures values between [2r0, 2r01111111111111111111111111111111]
-    rgen_1(a, b, c, d, s) =  (lfutil.left_shift((s & a), b)) xor lfutil.right_shift( (lfutil.left_shift(s, c) xor s), d) : _ & 2147483647;
+    rgen_1(a, b, c, d, s) =  (lf.left_shift((s & a), b)) xor lf.right_shift( (lf.left_shift(s, c) xor s), d) : _ & 2147483647;
 };
 
 
@@ -249,6 +248,6 @@ irrand(seed, r_min, r_max) = int(rrand(seed, r_min -1, r_max + 1));
 //         rgen_1(-16, 17,  3, 11);
 
 //     // last `&` ensures values between [2r0, 2r01111111111111111111111111111111]
-//     rgen_1(a, b, c, d, s) =  (lfutil.left_shift((s & a), b)) xor lfutil.right_shift( (lfutil.left_shift(s, c) xor s), d) : _ & 2147483647;
+//     rgen_1(a, b, c, d, s) =  (lf.left_shift((s & a), b)) xor lf.right_shift( (lf.left_shift(s, c) xor s), d) : _ & 2147483647;
 // };
 

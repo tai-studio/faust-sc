@@ -3,10 +3,40 @@ declare author "LFSaw";
 declare copyright "MIT";
 
 import("stdfaust.lib");
-import("taiUtils.lib");
 lf = library("taiStudio.lib");
 sc = library("scUGens.lib");
 
+
+IMAX = 2147483647;
+UMAX = -1;
+B31 = 1073741824; // 0x40000000 == 2bin01000000000000000000000000000000
+not(v) = xor(v, UMAX);
+l_shift (v, n) = v << n;
+
+r_shift(v, 0) = v;
+r_shift(v, n) = r_shift_a(ma.signum(v), v, n) with {
+    // r_shift_a(  1, v, n ) = v >> n;
+    // r_shift_a( -1, v, n ) = ((v & IMAX) >> n) | (1 << (31 - n));
+    r_shift_a ( s, v, n ) = select2(s > 0, v >>n, ((v & IMAX) >> n) | (1 << (31 - n)));
+
+};
+
+
+bitHash(val) = a6 with {
+    a1 = val + (l_shift(val, 15) : not);
+    a2 = xor(a1, r_shift(a1, 10));
+    a3 = a2 + l_shift(a2, 3);
+    a4 = xor(a3, r_shift(a3, 6));
+    a5 = a4 + (l_shift(a4, 11) : not);
+    a6 = xor(a5, r_shift(a5, 16));
+};
+
+// expects normed input (-1..1)
+// outputs [0, 1]
+// TODO: add mod?
+hasher_n(v) = bitHash(r_int(v * (IMAX-1))) / IMAX with {
+    r_int(x) = ba.if(x < 0, int(x - .5), int(x + .5));
+};
 
 //---------------------------------`(rnd.)taus_rand`---------------------------------------
 // generates random integer values in the range [0, 2147483647] at sample rate

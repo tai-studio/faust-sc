@@ -1,3 +1,4 @@
+#include <stdint.h>
 // #include <bitset>
 // #include <string>
 // #include <iostream>
@@ -42,13 +43,13 @@ int bitHash( int val) {
 }
 
 float hasher (float val) {
-        int32_t z  = *(uint32*)&val; // direct cast
+        int32_t z  = *(uint32_t*)&val; // direct cast
 
         union {
             float f;
             int i;
         } u;
-        u.i = 0x40000000 | ((uint32)bitHash(z) >> 9); 
+        u.i = 0x40000000 | ((uint32_t)bitHash(z) >> 9); 
         return (u.f - 3.f);
 }
 
@@ -78,9 +79,9 @@ int bit_rightShift(int a, int b) {
 }
 
 // trand(int s1, int s2, int s3) {
-//     s1 = ((s1 & (uint32)-2) << 12) ^ (((s1 << 13) ^ s1) >> 19);
-//     s2 = ((s2 & (uint32)-8) << 4) ^ (((s2 << 2) ^ s2) >> 25);
-//     s3 = ((s3 & (uint32)-16) << 17) ^ (((s3 << 3) ^ s3) >> 11);
+//     s1 = ((s1 & (uint32_t)-2) << 12) ^ (((s1 << 13) ^ s1) >> 19);
+//     s2 = ((s2 & (uint32_t)-8) << 4) ^ (((s2 << 2) ^ s2) >> 25);
+//     s3 = ((s3 & (uint32_t)-16) << 17) ^ (((s3 << 3) ^ s3) >> 11);
 
 //     return s1 ^ s2 ^ s3;
 // }
