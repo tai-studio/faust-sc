@@ -101,6 +101,7 @@ lfsaw(freq, phase) = lfsaw_uni(freq, phase) * 2 - 1;
 // * `phase`: phase in the range of 0..2pi
 //-----------------------------------------------------------------------------
 sinosc(freq, phase) = os.oscp(freq, phase);
+sinosc_0(freq) = sinosc(freq, 0);
 
 //---------------------------------`(sc.)lfpulse`---------------------------------------
 // aliasing pulsewave in the range [0..1]

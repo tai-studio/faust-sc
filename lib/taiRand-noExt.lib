@@ -22,7 +22,7 @@ r_shift(v, n) = r_shift_a(ma.signum(v), v, n) with {
 };
 
 
-bitHash(val) = a6 with {
+ihash(val) = a6 with {
     a1 = val + (l_shift(val, 15) : not);
     a2 = xor(a1, r_shift(a1, 10));
     a3 = a2 + l_shift(a2, 3);
@@ -34,9 +34,12 @@ bitHash(val) = a6 with {
 // expects normed input (-1..1)
 // outputs [0, 1]
 // TODO: add mod?
-hasher_n(v) = bitHash(r_int(v * (IMAX-1))) / IMAX with {
+hasher_n(v) = ihash(r_int(v * (IMAX-1))) / IMAX with {
     r_int(x) = ba.if(x < 0, int(x - .5), int(x + .5));
 };
+
+
+fhash(v) = hasher_n(ma.frac(v));
 
 //---------------------------------`(rnd.)taus_rand`---------------------------------------
 // generates random integer values in the range [0, 2147483647] at sample rate

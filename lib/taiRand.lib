@@ -6,6 +6,13 @@ import("stdfaust.lib");
 lf = library("taiStudio.lib");
 sc = library("scUGens.lib");
 
+IMAX = 2147483647;
+UMAX = -1;
+B31 = 1073741824; // 0x40000000 == 2bin01000000000000000000000000000000
+not(v) = ffunction(int bit_not (int), "scUGens.h", "");  xor(v, UMAX);
+l_shift (v, n) = v << n;
+r_shift(v, n) = ffunction(int bit_rightShift (int, int), "scUGens.h", "");
+
 
 //---------------------------------`(rnd.)ihash`---------------------------------------
 // hashing an integer value. Output is in the range [-2147483648, 2147483647].
