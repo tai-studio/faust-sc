@@ -270,6 +270,30 @@ with{
     expand(r_min, r_max) = _ * (r_max - r_min) : _ + rmin;
 };
 
+//---------------------------------`(sc.)linexp`---------------------------------------
+// exponential remapping
+//
+// #### Usage
+//
+// ```
+// process = _ : sc.linexp(0, 1, 4, 10) : _;
+// ```
+//-----------------------------------------------------------------------------
+linexp(in_min, in_max, out_min, out_max) = pow(out_max / out_min, (_ - in_min) / (in_max - in_min)) * out_min;
+
+
+
+//---------------------------------`(sc.)explin`---------------------------------------
+// exponential to linear mapping
+//
+// #### Usage
+//
+// ```
+// process = _ : sc.explin(10, 100, 4, 10) : _;
+// ```
+//-----------------------------------------------------------------------------
+explin(in_min, in_max, out_min, out_max) = (log(this / in_min)) / (log(in_max / in_min)) * (out_max - out_min) + out_min;
+
 
 
 //////////// Array-methods for lists
