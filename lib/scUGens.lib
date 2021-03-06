@@ -317,13 +317,13 @@ at(LIST, IDX) = ba.take(IDX+1, LIST);
 
 
 
-//---------------------------------`(sc.)rotate`---------------------------------------
+//---------------------------------`(sc.)rotate_list`---------------------------------------
 // sc-style `rotate` for lists
 //
 // #### Usage
 //
 // ```
-// process = sc.rotate(list, AMOUNT) : bus(sc.size(list));
+// process = sc.rotate_list(list, AMOUNT) : bus(sc.size(list));
 // ```
 // 
 // #### Example
@@ -331,10 +331,28 @@ at(LIST, IDX) = ba.take(IDX+1, LIST);
 // process = sc.rotate((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
 //
 //-----------------------------------------------------------------------------
-rotate(list, 0) = list;
-rotate((a, b, c), NUMBER) = rotate((c, a, b), NUMBER-1);
-rotate((a, b), NUMBER) = rotate((b, a), NUMBER-1);
-rotate(elem, NUMBER) = elem;
+rotate_list(list, 0) = list;
+rotate_list((a, b, c), NUMBER) = rotate((c, a, b), NUMBER-1);
+rotate_list((a, b), NUMBER) = rotate((b, a), NUMBER-1);
+rotate_list(elem, NUMBER) = elem;
+
+//---------------------------------`(sc.)rotate`---------------------------------------
+// sc-style `rotate` for multichannel inputs
+//
+// #### Usage
+//
+// ```
+// process = si.bus(N) : sc.rotate(N, VAL) : bus(sc.size(list));
+// ```
+// 
+// #### Example
+//
+// process = sc.rotate((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 4);
+//
+//-----------------------------------------------------------------------------
+rotate(N, VAL) = route(N, N, par(i, N, (i + 1, (i + VAL) % N + 1)));
+
+
 
 
 // //---------------------------------`(sc.)scramble`---------------------------------------
