@@ -211,3 +211,26 @@ tanh_approx(v) = clamp(v) * ( 27. + (clamp(v)* clamp(v)) / ( 27. + 9. * (clamp(v
 
 
 
+//------------------------------`(lf.)map`------------------
+map(bias, scale, in) = max(0, (bias * biasfac) + (scale * in * modfac)) with {
+    biasfac = 15000;
+    modfac = 15000;
+};
+
+
+
+//------------------------------`(lf.)ms`------------------
+// MS processor
+// ms(x, y, width) = (x + y) * 0.5, (x-y) * 0.5 * width;
+ms(1, midIn, sideIn) = (midIn + sideIn) * 0.5, (midIn-sideIn) * 0.5;
+ms(width, midIn, sideIn) = (mid + side) * 0.5, (mid-side) * 0.5 with {
+    mid = midIn;
+    side = sideIn * width;
+};
+
+
+//------------------------------`(lf.)rotate2`------------------
+rotate2(r, x, y) = xout, yout with {
+    xout = cos(r) * x + sin(r) * y;
+    yout = cos(r) * y - sin(r) * x;
+};
