@@ -593,7 +593,6 @@ trig1_1(x) = lf.strictRising(x > 0);
 trig_1(x) = lf.strictRising(x > 0) * x;
 
 
-
 //-------------------------`(sc.)latch`-----------------------
 // Holds input signal value when triggered (`trig` moves from negative to positive). 
 // Outputs 0 until it receives its first trigger.

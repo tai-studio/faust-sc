@@ -178,7 +178,7 @@ funcosc(func, freq, phase, reset) =  phasor(freq, phase, reset, size) : rdtable(
 };
 
 
-//---------------------------------`(lf.)funcosc`---------------------------------------
+//---------------------------------`(lf.)func2waveform`---------------------------------------
 // returns tuple of size and values as expected from rdtable
 // #### Usage
 //

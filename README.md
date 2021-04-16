@@ -4,83 +4,93 @@
 DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp language inspired by [SuperCollider](http://supercollider.github.io) functionality.
 
 
-* [scUgens.lib](#scugenslib)
-  + [Synthesis](#synthesis)
-    - [hasher](#hasher)
-    - [impulse](#impulse)
-    - [lfsaw](#lfsaw)
-    - [lfsaw_uni](#lfsaw-uni)
-    - [sinosc](#sinosc)
-    - [lfpulse](#lfpulse)
-    - [lftri](#lftri)
-    - [pmosc](#pmosc)
-    - [sinoscfb](#sinoscfb)
-    - [sinoscfb_p](#sinoscfb-p)
-    - [pmosc](#pmosc-1)
-  + [Noise](#noise)
-    - [whitenoise](#whitenoise)
-    - [pinknoise](#pinknoise)
-    - [dust](#dust)
-  + [Filter](#filter)
-    - [lpf](#lpf)
-  + [Tools](#tools)
-    - [mod](#mod)
-    - [linlin](#linlin)
-  + [Array-methods for lists](#array-methods-for-lists)
-    - [size](#size)
-    - [wrapAt](#wrapat)
-    - [at](#at)
-    - [rotate](#rotate)
-    - [drop](#drop)
-    - [keep](#keep)
-    - [reverse](#reverse)
-  + [Waveform manipulation](#waveform-manipulation)
-    - [wrap2](#wrap2)
-    - [wrap](#wrap)
-    - [clip2](#clip2)
-    - [clip](#clip)
-    - [fold](#fold)
-    - [fold2](#fold2)
-  + [Triggers and gates](#triggers-and-gates)
-    - [trig_1](#trig-1)
-    - [trig1_1](#trig1-1)
-    - [latch](#latch)
-    - [gate](#gate)
-  + [Demand-like](#demand-like)
-    - [demand_1](#demand-1)
-    - [tdemand_1](#tdemand-1)
-* [taiStudio.lib](#taistudiolib)
-  + [Signal tools](#signal-tools)
-    - [strictRising](#strictrising)
-    - [strictFalling](#strictfalling)
-    - [changed](#changed)
-    - [falling](#falling)
-    - [rising](#rising)
-    - [unchanged](#unchanged)
-  + [bit operations](#bit-operations)
-    - [bitNot](#bitnot)
-    - [left_shift](#left-shift)
-    - [right_shift](#right-shift)
-    - [Synthesis](#synthesis-1)
-    - [phasor](#phasor)
-    - [sineosc_s](#sineosc-s)
-    - [funcosc](#funcosc)
-    - [func2waveform](#func2waveform)
-* [taiRand.lib](#tairandlib)
-  + [Hashing](#hashing)
-    - [ihash](#ihash)
-    - [fhash](#fhash)
-  + [Audio-rate random generators](#audio-rate-random-generators)
-    - [taus_rand](#taus-rand)
-    - [taus_rand_normed](#taus-rand-normed)
-    - [rand1](#rand1)
-    - [rand2](#rand2)
-    - [rand](#rand)
-    - [rrand](#rrand)
-    - [irand](#irand)
-    - [irand2](#irand2)
-    - [irrand](#irrand)
-* [Acknowledgements and Support](#acknowledgements-and-support)
+- [faust-sc](#faust-sc)
+  - [scUgens.lib](#scugenslib)
+    - [Synthesis / Oscillators](#synthesis--oscillators)
+      - [impulse](#impulse)
+      - [lfsaw](#lfsaw)
+      - [lfsaw_uni](#lfsaw_uni)
+      - [sinosc](#sinosc)
+      - [lfpulse](#lfpulse)
+      - [lftri](#lftri)
+      - [pmosc](#pmosc)
+      - [sinoscfb](#sinoscfb)
+      - [sinoscfb_p](#sinoscfb_p)
+      - [pmosc](#pmosc-1)
+    - [Noise](#noise)
+      - [whitenoise](#whitenoise)
+      - [pinknoise](#pinknoise)
+      - [dust](#dust)
+      - [hasher](#hasher)
+    - [Filter](#filter)
+      - [lpf](#lpf)
+      - [leakdc](#leakdc)
+    - [Tools](#tools)
+      - [mod](#mod)
+      - [linlin](#linlin)
+      - [linexp](#linexp)
+      - [explin](#explin)
+      - [wrap2](#wrap2)
+      - [wrap](#wrap)
+      - [clip2](#clip2)
+      - [clip](#clip)
+      - [fold2](#fold2)
+      - [fold](#fold)
+    - [Array-methods for lists](#array-methods-for-lists)
+      - [size_list](#size_list)
+      - [wrapAt_list](#wrapat_list)
+      - [at_list](#at_list)
+      - [rotate_list](#rotate_list)
+      - [rotate](#rotate)
+      - [drop_list](#drop_list)
+      - [keep_list](#keep_list)
+      - [reverse_list](#reverse_list)
+    - [Triggers and gates](#triggers-and-gates)
+      - [trig_1](#trig_1)
+      - [trig1_1](#trig1_1)
+      - [latch](#latch)
+      - [gate](#gate)
+    - [Demand-like](#demand-like)
+      - [demand_1](#demand_1)
+      - [tdemand_1](#tdemand_1)
+  - [taiStudio.lib](#taistudiolib)
+    - [low-level signal features](#low-level-signal-features)
+      - [strictRising](#strictrising)
+      - [strictFalling](#strictfalling)
+      - [changed](#changed)
+      - [falling](#falling)
+      - [rising](#rising)
+      - [unchanged](#unchanged)
+    - [bit operations](#bit-operations)
+      - [bitNot](#bitnot)
+      - [left_shift](#left_shift)
+      - [right_shift](#right_shift)
+    - [Synthesis / Oscillators](#synthesis--oscillators-1)
+      - [phasor](#phasor)
+      - [sineosc_s](#sineosc_s)
+      - [funcosc](#funcosc)
+      - [func2waveform](#func2waveform)
+    - [Maths](#maths)
+      - [tanh_approx](#tanh_approx)
+      - [map](#map)
+    - [Stereo processing](#stereo-processing)
+      - [ms](#ms)
+      - [rotate2](#rotate2)
+  - [taiRand.lib](#tairandlib)
+    - [Hashing](#hashing)
+      - [ihash](#ihash)
+      - [fhash](#fhash)
+    - [Audio-rate random generators](#audio-rate-random-generators)
+      - [taus_rand](#taus_rand)
+      - [taus_rand_normed](#taus_rand_normed)
+      - [rand1](#rand1)
+      - [rand2](#rand2)
+      - [rand](#rand)
+      - [rrand](#rrand)
+      - [irand](#irand)
+      - [irand2](#irand2)
+      - [irrand](#irrand)
+  - [Acknowledgements and Support](#acknowledgements-and-support)
 
 ------------------
 
@@ -90,13 +100,7 @@ DSP function definitions for the [FAUST](https://faustdoc.grame.fr/) dsp languag
 sc = import("scUGens.lib") 
 ```
 
-### Synthesis
-
-#### hasher
-```
-process = sc.hasher(v) : _;
-```
-See SuperCollider reference for [Hasher](http://doc.sccode.org/Classes/Hasher.html) for details.
+### Synthesis / Oscillators
 
 #### impulse
 ```
@@ -179,6 +183,11 @@ process = sc.dust(density) : _;
 ```
 See SuperCollider reference for [Dust](http://doc.sccode.org/Classes/Dust.html) for details.
 
+#### hasher
+```
+process = sc.hasher(v) : _;
+```
+See SuperCollider reference for [Hasher](http://doc.sccode.org/Classes/Hasher.html) for details.
 
 
 ### Filter
@@ -192,6 +201,8 @@ See SuperCollider reference for [Dust](http://doc.sccode.org/Classes/Dust.html) 
 process = _ : sc.lpf(freq) : _;
 ```
 See SuperCollider reference for [LPF](http://doc.sccode.org/Classes/LPF.html) for details.
+
+#### leakdc
 
 
 
@@ -219,83 +230,22 @@ See SuperCollider reference for [linlin](http://doc.sccode.org/Overviews/Methods
 process = _ : sc.linlin(0, 1, 4, 10) : _;
 ```
 
+#### linexp
 
-
-### Array-methods for lists
-
-#### size
-SuperCollider `Array:size`.
-See SuperCollider reference for [size](http://doc.sccode.org/Overviews/Methods.html#size) for details.
-
-
+SC-style exponential mapping.
+See SuperCollider reference for [linexp](http://doc.sccode.org/Overviews/Methods.html#linexp) for details.
 ```
-process = sc.size((a, b, ...)) : N;
+process = _ : sc.linexp(0, 1, 4, 10) : _;
 ```
 
+#### explin
 
-#### wrapAt
-
-SuperCollider `Array:wrapAt`.
-See SuperCollider reference for [wrapAt](http://doc.sccode.org/Overviews/Methods.html#wrapAt) for details.
-
+SC-style exponential mapping.
+See SuperCollider reference for [explin](http://doc.sccode.org/Overviews/Methods.html#explin) for details.
 ```
-process = sc.wrapAt((a, b, ...), IDX) : _;
+process = _ : sc.explin(1, 3, 4, 10) : _;
 ```
 
-#### at
-SuperCollider `Array:at`.
-See SuperCollider reference for [at](http://doc.sccode.org/Overviews/Methods.html#at) for details.
-
-
-```
-process = sc.at((a, b, ...), IDX) : _;
-```
-
-
-#### rotate
-SuperCollider `Array:rotate`.
-See SuperCollider reference for [rotate](http://doc.sccode.org/Overviews/Methods.html#rotate) for details.
-
-```
-process = sc.rotate(list, AMOUNT) : si.bus(sc.size(list));
-```
-
-
-#### drop
-
-SC-style `drop` for lists (drop N left elements).
-See SuperCollider reference for [drop](http://doc.sccode.org/Overviews/Methods.html#drop) for details.
-
-```
-process = sc.drop(list, N) : si.bus(sc.size(list)-N);
-```
-
-
-
-#### keep
-
-SC-style `keep` for lists (keep N left elements).
-See SuperCollider reference for [keep](http://doc.sccode.org/Overviews/Methods.html#keep) for details.
-
-```
-process = sc.keep(list, N) : si.bus(N);
-```
-
-
-#### reverse
-
-SC-style `reverse` for lists (reverse N left elements).
-See SuperCollider reference for [reverse](http://doc.sccode.org/Overviews/Methods.html#reverse) for details.
-
-```
-process = sc.reverse(list) : si.bus(sc.size(list));
-```
-
-
-
-
-
-### Waveform manipulation
 #### wrap2
 
 SC-style `wrap2` a signal.
@@ -336,6 +286,15 @@ See SuperCollider reference for [clip](http://doc.sccode.org/Overviews/Methods.h
 process = _ : sc.clip(lo, hi) : _;
 ```
 
+#### fold2
+
+SC-style `fold2` a signal.
+See SuperCollider reference for [fold2](http://doc.sccode.org/Overviews/Methods.html#fold2) for details.
+
+```
+process = _ : sc.fold2(hi) : _;
+```
+
 
 #### fold
 
@@ -347,14 +306,84 @@ process = _ : sc.fold(lo, hi) : _;
 ```
 
 
-#### fold2
+### Array-methods for lists
 
-SC-style `fold2` a signal.
-See SuperCollider reference for [fold2](http://doc.sccode.org/Overviews/Methods.html#fold2) for details.
+#### size_list
+SuperCollider `Array:size`.
+See SuperCollider reference for [size](http://doc.sccode.org/Overviews/Methods.html#size) for details.
+
 
 ```
-process = _ : sc.fold2(hi) : _;
+process = sc.size_list((a, b, ...)) : N;
 ```
+
+
+#### wrapAt_list
+
+SuperCollider `Array:wrapAt`.
+See SuperCollider reference for [wrapAt](http://doc.sccode.org/Overviews/Methods.html#wrapAt) for details.
+
+```
+process = sc.wrapAt_list((a, b, ...), IDX) : _;
+```
+
+#### at_list
+SuperCollider `Array:at`.
+See SuperCollider reference for [at](http://doc.sccode.org/Overviews/Methods.html#at) for details.
+
+
+```
+process = sc.at_list((a, b, ...), IDX) : _;
+```
+
+
+#### rotate_list
+SuperCollider `Array:rotate`.
+See SuperCollider reference for [rotate](http://doc.sccode.org/Overviews/Methods.html#rotate) for details.
+
+```
+process = sc.rotate_list(list, AMOUNT) : si.bus(sc.size(list));
+```
+#### rotate
+SuperCollider `Array:rotate` for inputs.
+See SuperCollider reference for [rotate](http://doc.sccode.org/Overviews/Methods.html#rotate) for details.
+
+```
+process = si.bus(N) : sc.rotate(N, AMOUNT) : si.bus(N);
+```
+
+
+#### drop_list
+
+SC-style `drop` for lists (drop N left elements).
+See SuperCollider reference for [drop](http://doc.sccode.org/Overviews/Methods.html#drop) for details.
+
+```
+process = sc.drop_list(list, N) : si.bus(sc.size(list)-N);
+```
+
+
+
+#### keep_list
+
+SC-style `keep` for lists (keep N left elements).
+See SuperCollider reference for [keep](http://doc.sccode.org/Overviews/Methods.html#keep) for details.
+
+```
+process = sc.keep_list(list, N) : si.bus(N);
+```
+
+
+#### reverse_list
+
+SC-style `reverse` for lists (reverse N left elements).
+See SuperCollider reference for [reverse](http://doc.sccode.org/Overviews/Methods.html#reverse) for details.
+
+```
+process = sc.reverse_list(list) : si.bus(sc.size(list));
+```
+
+
 
 
 
@@ -407,7 +436,7 @@ process = _ : sc.tdemand_1(f) : _;
 ## taiStudio.lib
 
 
-### Signal tools
+### low-level signal features
 shameless copy from [this issue](https://github.com/grame-cncm/faustlibraries/issues/45)
 
 #### strictRising
@@ -487,7 +516,7 @@ process = _ : lf.right_shift(_);
 ///////////
 
 
-#### Synthesis
+### Synthesis / Oscillators
 
 #### phasor
 
@@ -521,7 +550,34 @@ A turn a function (with one variable) into a waveform.
 process = lf.func2waveform(function, size) : _,_;
 ```
 
+### Maths
 
+#### tanh_approx
+
+an approximation of tanh
+
+#### map
+
+map from one value range to another
+
+### Stereo processing
+
+#### ms
+
+convert a stereo AB signal into a mid-side (MS) signal and vice-versa.
+
+#### rotate2
+
+Rotate2 does an equal power rotation so it works well on stereo sounds. 
+
+It computes
+
+```
+xout = cos(angle) * xin + sin(angle) * yin;
+yout = cos(angle) * yin - sin(angle) * xin;
+```
+
+where `angle = pos * pi`, so that `-1` becomes `-pi` and `+1` becomes `+pi`.
 
 ## taiRand.lib
 
